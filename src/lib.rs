@@ -5,6 +5,7 @@ mod audio;
 mod loading;
 mod menu;
 mod player;
+pub mod metaballs;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
