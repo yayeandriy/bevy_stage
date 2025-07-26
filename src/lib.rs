@@ -5,8 +5,13 @@ mod audio;
 mod loading;
 mod menu;
 mod player;
+mod flock;
+mod shader;
+mod env_shader;
 
-use crate::actions::ActionsPlugin;
+use crate::env_shader::EnvShaderPlugin;
+use crate::shader::ShaderPlugin;
+use crate::{actions::ActionsPlugin, flock::FlockPlugin};
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
@@ -40,14 +45,17 @@ impl Plugin for GamePlugin {
             MenuPlugin,
             ActionsPlugin,
             InternalAudioPlugin,
-            PlayerPlugin,
+            // PlayerPlugin,
+            FlockPlugin,
+            EnvShaderPlugin,
+            // ShaderPlugin
         ));
 
         #[cfg(debug_assertions)]
         {
             app.add_plugins((
-                FrameTimeDiagnosticsPlugin::default(),
-                LogDiagnosticsPlugin::default(),
+                // FrameTimeDiagnosticsPlugin::default(),
+                // LogDiagnosticsPlugin::default(),
             ));
         }
     }

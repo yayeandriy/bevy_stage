@@ -106,7 +106,7 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                 ))
                 .with_children(|parent| {
                     parent.spawn((
-                        Text::new("Made with Bevy"),
+                        Text::new("Made with 2 Bevy"),
                         TextFont {
                             font_size: 15.0,
                             ..default()
