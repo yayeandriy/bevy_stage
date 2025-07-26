@@ -7,9 +7,9 @@ mod menu;
 mod player;
 mod flock;
 mod shader;
-mod env_shader;
+mod animated_shader;
 
-use crate::env_shader::EnvShaderPlugin;
+use crate::animated_shader::AnimatedShaderPlugin;
 use crate::shader::ShaderPlugin;
 use crate::{actions::ActionsPlugin, flock::FlockPlugin};
 use crate::audio::InternalAudioPlugin;
@@ -47,7 +47,7 @@ impl Plugin for GamePlugin {
             InternalAudioPlugin,
             // PlayerPlugin,
             FlockPlugin,
-            EnvShaderPlugin,
+            AnimatedShaderPlugin,
             // ShaderPlugin
         ));
 

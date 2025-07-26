@@ -4,7 +4,7 @@ use crate::GameState;
 
 const SHADER_ASSET_PATH: &str = "shaders/unified_animate.wgsl";
 
-pub struct EnvShaderPlugin;
+pub struct AnimatedShaderPlugin;
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 struct AnimatedShaderMaterial {
@@ -20,7 +20,7 @@ impl Material2d for AnimatedShaderMaterial {
 
 /// This plugin handles animated shader rendering
 /// Works on both native and web platforms
-impl Plugin for EnvShaderPlugin {
+impl Plugin for AnimatedShaderPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(Material2dPlugin::<AnimatedShaderMaterial>::default())
            .add_systems(OnEnter(GameState::Playing), spawn_animated_mesh)
