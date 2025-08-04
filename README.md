@@ -20,7 +20,8 @@ WARNING: if you work in a private repository, please be aware that macOS and Win
  1. Click "Use this template" on the repository's page
  2. Look for `ToDo` to use your own game name everywhere
  3. [Update the icons as described below](#updating-the-icons)
- 4. Start coding :tada:
+ 4. Check the [project structure documentation](PROJECT_STRUCTURE.md) to understand the code organization
+ 5. Start coding :tada:
     * Start the native app: `cargo run`
     * Start the web build: `trunk serve`
         * requires [trunk]: `cargo install --locked trunk`

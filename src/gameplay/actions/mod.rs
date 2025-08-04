@@ -1,8 +1,8 @@
 use bevy::math::Vec3Swizzles;
 use bevy::prelude::*;
 
-use crate::actions::game_control::{get_movement, GameControl};
-use crate::player::Player;
+use crate::gameplay::actions::game_control::{get_movement, GameControl};
+use crate::gameplay::player::Player;
 use crate::GameState;
 
 mod game_control;
@@ -10,6 +10,7 @@ mod game_control;
 pub const FOLLOW_EPSILON: f32 = 5.;
 
 pub struct ActionsPlugin;
+
 
 // This plugin listens for keyboard input and converts the input into Actions.
 // Actions can then be used as a resource in other systems to act on the player input.
@@ -33,7 +34,7 @@ pub fn set_movement_actions(
     touch_input: Res<Touches>,
     player: Query<&Transform, With<Player>>,
     camera: Query<(&Camera, &GlobalTransform), With<Camera2d>>,
-) -> Result {
+) {
     let mut player_movement = Vec2::new(
         get_movement(GameControl::Right, &keyboard_input)
             - get_movement(GameControl::Left, &keyboard_input),
@@ -63,6 +64,4 @@ pub fn set_movement_actions(
     } else {
         actions.player_movement = None;
     }
-
-    Ok(())
 }

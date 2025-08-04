@@ -1,27 +1,17 @@
 #![allow(clippy::type_complexity)]
 
-mod actions;
-mod audio;
-mod loading;
-mod startup_menu;
-mod drawing_menu;
-mod player;
-mod flock;
-mod shader;
-mod animated_shader;
+mod ui;
+mod gameplay;
+mod shaders;
+mod systems;
 
-use crate::animated_shader::AnimatedShaderPlugin;
-use crate::drawing_menu::DrawingMenuPlugin;
-use crate::shader::ShaderPlugin;
-use crate::{actions::ActionsPlugin, flock::FlockPlugin};
-use crate::audio::InternalAudioPlugin;
-use crate::loading::LoadingPlugin;
-use crate::startup_menu::StartupMenuPlugin;
-use crate::player::PlayerPlugin;
+use crate::gameplay::grid::GridPlugin;
+use crate::ui::{StartupMenuPlugin, DrawingMenuPlugin};
+use crate::gameplay::{ActionsPlugin, FlockPlugin};
+use crate::shaders::AnimatedShaderPlugin;
+use crate::systems::{LoadingPlugin, InternalAudioPlugin};
 
 use bevy::app::App;
-#[cfg(debug_assertions)]
-use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 
 // This example game uses States to separate logic
@@ -51,7 +41,8 @@ impl Plugin for GamePlugin {
             InternalAudioPlugin,
             // PlayerPlugin,
             FlockPlugin,
-            AnimatedShaderPlugin,
+            // AnimatedShaderPlugin,
+            GridPlugin
             // ShaderPlugin
         ));
 
