@@ -64,21 +64,21 @@ impl Plugin for GridPlugin {
 fn setup_grid(    
      mut grid_state: ResMut<GridState>
 ) {
-   // Create a simple 5x5 grid with equal sizing
-   // Use only relative fr units - no absolute values
+   // Create a simple 4x4 grid with equal sizing
+   // Use fr units for equal distribution
    grid_state.grid_template_columns = vec![
-    GridTrack::min_content(), 
-    GridTrack::min_content(),
-    GridTrack::min_content(),
-    GridTrack::min_content(),
+    GridTrack::fr(1.0), 
+    GridTrack::fr(2.0),
+    GridTrack::fr(1.0),
+    GridTrack::fr(1.0),
     ];
    
    // Same for rows - all equal
    grid_state.grid_template_rows = vec![
-      GridTrack::min_content(), 
-    GridTrack::min_content(),
-    GridTrack::min_content(),
-    GridTrack::min_content(),
+    GridTrack::fr(1.0), 
+    GridTrack::fr(1.0),
+    GridTrack::fr(1.0),
+    GridTrack::fr(1.0),
    ];
 }
 
@@ -110,36 +110,27 @@ fn spawn_grid(
             GridContainer,
         ))
         .with_children(|builder| {
-            grid_state.grid_template_columns
-                .iter()
-                .enumerate()
-                .for_each(|(col_index, _)| {
-                    grid_state.grid_template_rows
-                        .iter()
-                        .enumerate()
-                        .for_each(|(row_index, _)| {
-                            // Create a grid cell for each row and column
-                            builder.spawn((
-                                Node {
-                                    display: Display::Block,
-                                    width: Val::Percent(25.0), // 4 columns, so each takes 25%
-                                    height: Val::Percent(25.0), // 4 rows, so each takes 25%
-                                    padding: UiRect::all(Val::Px(3.0)),
-                                    ..default()
-                                },
-                                BackgroundColor(Color::srgb(0.5, 0.5, 0.5)), // Gray background for cells
-                                GridCell {
-                                    row: row_index,
-                                    col: col_index,
-                                },
-                            ));
-                        });
-                        //  item_rect(builder, ORANGE);
-               
-            });
-            // Create 5x5 grid cells
-                   
-                   
+            // Create grid cells with explicit positioning
+            for row in 0..4 {
+                for col in 0..4 {
+                    builder.spawn((
+                        Node {
+                            display: Display::Block,
+                            // Explicitly position this item in the grid
+                            grid_column: GridPlacement::start_end(col as i16 + 1, col as i16 + 2),
+                            grid_row: GridPlacement::start_end(row as i16 + 1, row as i16 + 2),
+                            border: UiRect::all(Val::Px(2.0)), // White border
+                            ..default()
+                        },
+                        BackgroundColor(Color::srgb(0.5, 0.5, 0.5)), // Gray background for cells
+                        BorderColor(Color::WHITE), // White border color
+                        GridCell {
+                            row,
+                            col,
+                        },
+                    ));
+                }
+            }
         });
 
 }
@@ -152,12 +143,12 @@ fn item_rect(builder: &mut ChildSpawnerCommands, color: Srgba) {
         .spawn((
             Node {
                 display: Display::Block,
-                width: Val::Percent(25.0),
-                height: Val::Percent(25.0),
+                width: Val::Px(40.0), // Fill the grid cell completely
+                height: Val::Px(40.0), // Fill the grid cell completely
                 padding: UiRect::all(Val::Px(3.0)),
                 ..default()
             },
-            BackgroundColor(BLACK.into()),
+            BackgroundColor(color.into()),
         ));
         // .with_children(|builder| {
         //     builder.spawn((Node::default(), BackgroundColor(color.into())));
