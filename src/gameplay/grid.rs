@@ -66,20 +66,13 @@ fn setup_grid(
 ) {
    // Create a simple 4x4 grid with equal sizing
    // Use fr units for equal distribution
-   grid_state.grid_template_columns = vec![
-    GridTrack::fr(1.0), 
-    GridTrack::fr(2.0),
-    GridTrack::fr(1.0),
-    GridTrack::fr(1.0),
-    ];
-   
+   grid_state.grid_template_columns = (0..INIT_N_COLS)
+       .map(|_| GridTrack::fr(1.0))
+       .collect();
    // Same for rows - all equal
-   grid_state.grid_template_rows = vec![
-    GridTrack::fr(1.0), 
-    GridTrack::fr(1.0),
-    GridTrack::fr(1.0),
-    GridTrack::fr(1.0),
-   ];
+   grid_state.grid_template_rows = (0..INIT_N_ROWS)
+       .map(|_| GridTrack::fr(1.0))
+       .collect();
 }
 
 
