@@ -32,6 +32,7 @@ enum GameState {
     Loading,
     // During this State the actual game logic is executed
     Playing,
+    Drawing,
     // Here the menu is drawn and waiting for player interaction
     Menu,
 }

@@ -23,8 +23,8 @@ impl Material2d for AnimatedShaderMaterial {
 impl Plugin for AnimatedShaderPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(Material2dPlugin::<AnimatedShaderMaterial>::default())
-           .add_systems(OnEnter(GameState::Playing), spawn_animated_mesh)
-           .add_systems(Update, update_shader_animation.run_if(in_state(GameState::Playing)));
+           .add_systems(OnEnter(GameState::Drawing), spawn_animated_mesh)
+           .add_systems(Update, update_shader_animation.run_if(in_state(GameState::Drawing)));
     }
 }
 
