@@ -3,18 +3,20 @@
 mod actions;
 mod audio;
 mod loading;
-mod menu;
+mod startup_menu;
+mod drawing_menu;
 mod player;
 mod flock;
 mod shader;
 mod animated_shader;
 
 use crate::animated_shader::AnimatedShaderPlugin;
+use crate::drawing_menu::DrawingMenuPlugin;
 use crate::shader::ShaderPlugin;
 use crate::{actions::ActionsPlugin, flock::FlockPlugin};
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
-use crate::menu::MenuPlugin;
+use crate::startup_menu::StartupMenuPlugin;
 use crate::player::PlayerPlugin;
 
 use bevy::app::App;
@@ -34,7 +36,7 @@ enum GameState {
     Playing,
     Drawing,
     // Here the menu is drawn and waiting for player interaction
-    Menu,
+    Startup,
 }
 
 pub struct GamePlugin;
@@ -43,7 +45,8 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<GameState>().add_plugins((
             LoadingPlugin,
-            MenuPlugin,
+            StartupMenuPlugin,
+            DrawingMenuPlugin,
             ActionsPlugin,
             InternalAudioPlugin,
             // PlayerPlugin,

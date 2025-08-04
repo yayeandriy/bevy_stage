@@ -1,33 +1,20 @@
 use crate::loading::TextureAssets;
+use crate::startup_menu::ButtonColors;
 use crate::GameState;
 use bevy::prelude::*;
 
-pub struct MenuPlugin;
+pub struct DrawingMenuPlugin;
 
 /// This plugin is responsible for the game menu (containing only one button...)
 /// The menu is only drawn during the State `GameState::Menu` and is removed when that state is exited
-impl Plugin for MenuPlugin {
+impl Plugin for DrawingMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Menu), setup_menu)
-            .add_systems(Update, click_play_button.run_if(in_state(GameState::Menu)))
-            .add_systems(OnExit(GameState::Menu), cleanup_menu);
+        app.add_systems(OnEnter(GameState::Drawing), setup_menu)
+            .add_systems(Update, click_play_button.run_if(in_state(GameState::Drawing)))
+            .add_systems(OnExit(GameState::Drawing), cleanup_menu);
     }
 }
 
-#[derive(Component)]
-struct ButtonColors {
-    normal: Color,
-    hovered: Color,
-}
-
-impl Default for ButtonColors {
-    fn default() -> Self {
-        ButtonColors {
-            normal: Color::linear_rgb(0.15, 0.15, 0.15),
-            hovered: Color::linear_rgb(0.25, 0.25, 0.25),
-        }
-    }
-}
 
 #[derive(Component)]
 struct Menu;
@@ -61,40 +48,17 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                     },
                     BackgroundColor(button_colors.normal),
                     button_colors,
-                    ChangeState(GameState::Playing),
+                    ChangeState(GameState::Startup),
                 ))
                 .with_child((
-                    Text::new("Play"),
+                    Text::new("Back"),
                     TextFont {
                         font_size: 40.0,
                         ..default()
                     },
                     TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
                 ));
-            let button_colors = ButtonColors::default();
-            children
-                .spawn((
-                    Button,
-                    Node {
-                        width: Val::Px(140.0),
-                        height: Val::Px(50.0),
-                        // margin: UiRect::all(Val::Px(5.)),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        ..Default::default()
-                    },
-                    BackgroundColor(button_colors.normal),
-                    button_colors,
-                    ChangeState(GameState::Drawing),
-                ))
-                .with_child((
-                    Text::new("Draw"),
-                    TextFont {
-                        font_size: 40.0,
-                        ..default()
-                    },
-                    TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
-                ));
+           
         });
     commands
         .spawn((
