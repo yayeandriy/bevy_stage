@@ -19,9 +19,12 @@ impl Plugin for DrawingMenuPlugin {
 #[derive(Component)]
 struct Menu;
 
+#[derive(Component)]
+struct DrawingMenuCamera;
+
 fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
     info!("menu");
-    commands.spawn((Camera2d, Msaa::Off));
+    commands.spawn((Camera2d, Msaa::Off, DrawingMenuCamera));
     commands
         .spawn((
             Node {
@@ -190,8 +193,15 @@ fn click_play_button(
     }
 }
 
-fn cleanup_menu(mut commands: Commands, menu: Query<Entity, With<Menu>>) {
+fn cleanup_menu(
+    mut commands: Commands, 
+    menu: Query<Entity, With<Menu>>,
+    cameras: Query<Entity, With<DrawingMenuCamera>>,
+) {
     for entity in menu.iter() {
+        commands.entity(entity).despawn();
+    }
+    for entity in cameras.iter() {
         commands.entity(entity).despawn();
     }
 }
