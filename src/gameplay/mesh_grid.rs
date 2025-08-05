@@ -64,7 +64,7 @@ impl Plugin for MeshGridPlugin {
         .insert_resource(MeshGridState::default())
         .add_systems(OnEnter(GameState::Drawing), (setup_grid, spawn_grid).chain())
         .add_systems(Update, 
-            (handle_mouse_click).run_if(in_state(GameState::Drawing))
+            (handle_mouse_click, handle_mouse_drag).run_if(in_state(GameState::Drawing))
         )
         .add_observer(
             |trigger: Trigger<ToggleCell>,
@@ -177,6 +177,7 @@ fn find_cell_at_col_and_row<'a>(
     cells.iter().find(|&cell| cell.col == col && cell.row == row)
 }
 
+#[allow(dead_code)]
 fn update_all_cells(
     grid_query: Query<(Entity, &Transform, &mut MeshMaterial2d<ColorMaterial>, &mut GridCell), With<GridCell>>,
     mut commands: Commands,
@@ -252,5 +253,85 @@ fn handle_mouse_click(
         });
         
     }
+   
+}
+
+fn handle_mouse_drag(
+    mut commands: Commands,
+    mouse_button_input: Res<ButtonInput<MouseButton>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut mouse_drag_state: ResMut<DragState>,
+    windows: Query<&Window>,
+    camera: Single<(&Camera, &GlobalTransform)>,
+    mut grid_query: Query<(Entity, &Transform, &mut GridCell), With<GridCell>>,
+) {
+    let Ok(window) = windows.single() else {
+        return;
+    };
+    let (camera, camera_transform) = *camera;
+    let Some(cursor_pos) = window
+        .cursor_position()
+        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor).ok())
+        .map(|ray| ray.origin.truncate())
+        else {
+            return;
+        };
+
+    if mouse_button_input.just_pressed(MouseButton::Left) {
+        
+        mouse_drag_state.is_dragging = true;
+        mouse_drag_state.start_position = cursor_pos;
+        log::info!("Mouse drag started at {:?}", cursor_pos);
+       return; 
+        
+    }
+    if mouse_button_input.just_released(MouseButton::Left) {
+        mouse_drag_state.is_dragging = false;
+        mouse_drag_state.drag_type = None;
+        log::info!("Mouse drag ended");
+        return;
+    }
+
+
+    if mouse_drag_state.is_dragging && (keyboard_input.pressed(KeyCode::ShiftLeft) || keyboard_input.just_pressed(KeyCode::ShiftLeft)) {   
+        let delta_pos = mouse_drag_state.start_position - cursor_pos;
+        log::info!("Mouse drag with Shift key held down - delta: {:?}", delta_pos);
+        let mut col = 0;
+        let mut row = 0;
+        grid_query.iter().for_each(|(_entity, transform, grid_cell)| {
+           let grid_pos = transform.translation.truncate();
+           // Check if cursor is within the bounds of the grid cell
+           if (grid_pos.x - 10.0..=grid_pos.x + 10.0).contains(&mouse_drag_state.start_position.x) &&
+               (grid_pos.y - 10.0..=grid_pos.y + 10.0).contains(&mouse_drag_state.start_position.y) {
+              col = grid_cell.col;
+              row = grid_cell.row;
+           }
+       });
+       if col != 0 || row != 0 {
+           log::info!("Dragging cell at row: {}, col: {}", row, col);
+           let delta_x = delta_pos.x / (window.width() / grid_query.iter().count() as f32);
+           let delta_y = delta_pos.y / (window.height() / grid_query.iter().count() as f32);
+           // Here you can implement the logic to resize the grid cell
+           // For now, let's just log the action
+       }
+        // Add your special shift+drag behavior here
+        return;
+    }
+
+    if mouse_drag_state.is_dragging {
+       grid_query.iter_mut().for_each(|(_entity, transform, mut grid_cell)| {
+           let grid_pos = transform.translation.truncate();
+           // Check if cursor is within the bounds of the grid cell
+           if (grid_pos.x - 10.0..=grid_pos.x + 10.0).contains(&cursor_pos.x) &&
+               (grid_pos.y - 10.0..=grid_pos.y + 10.0).contains(&cursor_pos.y) {
+               grid_cell.is_black = !grid_cell.is_black; // Toggle black state
+               commands.trigger(ToggleCell {
+                   row: grid_cell.row,
+                   col: grid_cell.col,
+               });
+           }
+       });
+    }
+
    
 }
