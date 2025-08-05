@@ -67,15 +67,26 @@ impl Plugin for MeshGridPlugin {
             (handle_mouse_click).run_if(in_state(GameState::Drawing))
         )
         .add_observer(
-            |_trigger: Trigger<ToggleCell>,
+            |trigger: Trigger<ToggleCell>,
             commands: Commands,
-            grid_query: Query<(Entity, &Transform, &mut MeshMaterial2d<ColorMaterial>, &mut GridCell), With<GridCell>>,
+            grid_query: Query<(Entity, &Transform, &mut MeshMaterial2d<ColorMaterial>, &GridCell), With<GridCell>>,
             materials: ResMut<Assets<ColorMaterial>>,| {
-                update_all_cells(
-                    commands,
+                let event = trigger.event();
+                let toggle_cell_data = ToggleCell {
+                    row: event.row,
+                    col: event.col,
+                };
+                toggle_cell(
                     grid_query,
+                    commands,
                     materials,
+                    toggle_cell_data, // Clone the event instead of dereferencing
                 );
+                // update_all_cells(
+                //     commands,
+                //     grid_query,
+                //     materials,
+                // );
             },
         );
     }
@@ -127,11 +138,6 @@ fn spawn_grid(
     let actual_cols_widths: Vec<f64> = grid_state.cols.iter().map(|&c| (c * available_width as f64 / total_col_units)).collect();
     let actual_rows_heights: Vec<f64> = grid_state.rows.iter().map(|&r| (r * available_height as f64 / total_row_units)).collect();
     
-    // Debug: Print calculated dimensions
-    // log::info!("Available space: {}x{}", available_width, available_height);
-    // log::info!("Total units - cols: {}, rows: {}", total_col_units, total_row_units);
-    // log::info!("Calculated col widths: {:?}", actual_cols_widths);
-    // log::info!("Calculated row heights: {:?}", actual_rows_heights);
     
     // Start from top-left corner of the window
     let start_x = -window.width() / 2.0;
@@ -172,8 +178,8 @@ fn find_cell_at_col_and_row<'a>(
 }
 
 fn update_all_cells(
-    mut commands: Commands,
     grid_query: Query<(Entity, &Transform, &mut MeshMaterial2d<ColorMaterial>, &mut GridCell), With<GridCell>>,
+    mut commands: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     for (entity, _transform, _mesh_material, grid_cell) in grid_query.iter() {
@@ -186,6 +192,27 @@ fn update_all_cells(
         commands.entity(entity).insert(MeshMaterial2d(materials.add(ColorMaterial::from(new_color))));
     }
 }
+
+fn toggle_cell(
+   grid_query: Query<(Entity, &Transform, &mut MeshMaterial2d<ColorMaterial>, &GridCell), With<GridCell>>,
+    mut commands: Commands,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    ToggleCell { row, col }: ToggleCell,
+) {
+    for (entity, _transform, _mesh_material, grid_cell) in grid_query.iter() {
+        if grid_cell.row != row || grid_cell.col != col {
+            continue; // Skip if this cell is not the one we want to toggle
+        }
+        // Example logic to update cell
+        let new_color = if grid_cell.is_black {
+            Color::BLACK
+        } else {
+            Color::WHITE
+        };
+        commands.entity(entity).insert(MeshMaterial2d(materials.add(ColorMaterial::from(new_color))));
+    }
+} 
+
 
 fn handle_mouse_click(
     mut commands: Commands,
@@ -206,7 +233,6 @@ fn handle_mouse_click(
         else {
             return;
         };
-        log::info!("Clicked inside the grid at  {:?}", cursor_pos);
         if grid_query.is_empty() {
             log::warn!("No grid cells found! Cannot handle click.");
             return;
@@ -218,18 +244,10 @@ fn handle_mouse_click(
             if (grid_pos.x - 10.0..=grid_pos.x + 10.0).contains(&cursor_pos.x) &&
                (grid_pos.y - 10.0..=grid_pos.y + 10.0).contains(&cursor_pos.y) {
                 grid_cell.is_black = !grid_cell.is_black; // Toggle black state
-                log::info!("Clicked on grid cell at position: {:?}", grid_cell);
                 commands.trigger(ToggleCell {
                     row: grid_cell.row,
                     col: grid_cell.col,
                 });
-                // update_cell(_entity, commands);
-                // Here you can handle the click, e.g., spawn an entity or change color
-                // commands.spawn((
-                //     Sprite::default(),
-                //     Transform::from_translation(Vec3::new(grid_pos.x, grid_pos.y, 1.0)),
-                //     ColorMaterial::from(Color::RED),
-                // ));
             }
         });
         
