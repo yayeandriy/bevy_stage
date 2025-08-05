@@ -1,7 +1,7 @@
 use crate::GameState;
 use bevy::{color::palettes::css::*, prelude::*};
 
-pub struct GridPlugin;
+pub struct UIGridPlugin;
 
 const INIT_N_COLS: usize = 4;
 const INIT_N_ROWS: usize = 4;
@@ -49,7 +49,7 @@ pub enum BorderType {
 
 /// This plugin handles player related stuff like movement
 /// Player logic is only active during the State `GameState::Playing`
-impl Plugin for GridPlugin {
+impl Plugin for UIGridPlugin {
     fn build(&self, app: &mut App) {
         app
         .insert_resource(DragState::default())

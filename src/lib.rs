@@ -5,9 +5,9 @@ mod gameplay;
 mod shaders;
 mod systems;
 
-use crate::gameplay::grid::GridPlugin;
+use crate::gameplay::ui_grid::UIGridPlugin;
 use crate::ui::{StartupMenuPlugin, DrawingMenuPlugin};
-use crate::gameplay::{ActionsPlugin, FlockPlugin};
+use crate::gameplay::{ActionsPlugin, FlockPlugin, MeshGridPlugin};
 use crate::shaders::AnimatedShaderPlugin;
 use crate::systems::{LoadingPlugin, InternalAudioPlugin};
 
@@ -42,7 +42,8 @@ impl Plugin for GamePlugin {
             // PlayerPlugin,
             FlockPlugin,
             // AnimatedShaderPlugin,
-            GridPlugin
+            // UIGridPlugin,
+            MeshGridPlugin
             // ShaderPlugin
         ));
 
