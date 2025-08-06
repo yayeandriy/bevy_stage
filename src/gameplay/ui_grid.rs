@@ -54,9 +54,9 @@ impl Plugin for UIGridPlugin {
         app
         .insert_resource(DragState::default())
         .insert_resource(GridState::default())
-        .add_systems(OnEnter(GameState::Drawing), (setup_grid, spawn_grid).chain())
+        .add_systems(OnEnter(GameState::MeshGrid), (setup_grid, spawn_grid).chain())
         .add_systems(Update, 
-            handle_drag_border.run_if(in_state(GameState::Drawing))
+            handle_drag_border.run_if(in_state(GameState::MeshGrid))
         );
     }
 }
@@ -177,13 +177,15 @@ fn handle_drag_border(
         return;
     };
 
+
     if mouse_button_input.just_pressed(MouseButton::Left) {
         // Start dragging - detect which border we're near
         if grid_query.single().is_ok() {
             // Check if we're near a column border
             // This is a simplified detection - in a real implementation you'd need
             // to calculate the actual grid line positions
-            
+            log::info!("Detected drag near column border at position: {:?}", cursor_pos);
+
             drag_state.is_dragging = true;
             drag_state.start_position = cursor_pos;
             

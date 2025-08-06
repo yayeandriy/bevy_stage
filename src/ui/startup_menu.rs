@@ -88,7 +88,7 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                     },
                     BackgroundColor(button_colors.normal),
                     button_colors,
-                    ChangeState(GameState::Drawing),
+                    ChangeState(GameState::TileMapGrid),
                 ))
                 .with_child((
                     Text::new("Draw"),

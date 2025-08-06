@@ -7,12 +7,14 @@ mod systems;
 
 use crate::gameplay::ui_grid::UIGridPlugin;
 use crate::ui::{StartupMenuPlugin, DrawingMenuPlugin};
-use crate::gameplay::{ActionsPlugin, FlockPlugin, MeshGridPlugin};
+use crate::gameplay::{ActionsPlugin, FlockPlugin, MeshGridPlugin, TileMapGridPlugin};
 use crate::shaders::AnimatedShaderPlugin;
 use crate::systems::{LoadingPlugin, InternalAudioPlugin};
 
 use bevy::app::App;
 use bevy::prelude::*;
+use bevy_ecs_tilemap::TilemapPlugin;
+use bevy_picking::prelude::*;
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -24,7 +26,8 @@ enum GameState {
     Loading,
     // During this State the actual game logic is executed
     Playing,
-    Drawing,
+    MeshGrid,
+    TileMapGrid,
     // Here the menu is drawn and waiting for player interaction
     Startup,
 }
@@ -43,7 +46,9 @@ impl Plugin for GamePlugin {
             FlockPlugin,
             // AnimatedShaderPlugin,
             // UIGridPlugin,
-            MeshGridPlugin
+            MeshGridPlugin,
+            TilemapPlugin,
+            TileMapGridPlugin
             // ShaderPlugin
         ));
 

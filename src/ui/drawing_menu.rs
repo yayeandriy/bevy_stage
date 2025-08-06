@@ -9,9 +9,9 @@ pub struct DrawingMenuPlugin;
 /// The menu is only drawn during the State `GameState::Menu` and is removed when that state is exited
 impl Plugin for DrawingMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Drawing), setup_menu)
-            .add_systems(Update, click_play_button.run_if(in_state(GameState::Drawing)))
-            .add_systems(OnExit(GameState::Drawing), cleanup_menu);
+        app.add_systems(OnEnter(GameState::TileMapGrid), setup_menu)
+            .add_systems(Update, click_play_button.run_if(in_state(GameState::TileMapGrid)))
+            .add_systems(OnExit(GameState::TileMapGrid), cleanup_menu);
     }
 }
 
