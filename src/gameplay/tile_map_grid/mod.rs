@@ -8,17 +8,6 @@ use std::fmt::Debug;
 
 const QUADRANT_SIDE_LENGTH: u32 = 64;
 
-#[derive(Component)]
-struct ClickableRect {
-    clicked: bool,
-}
-
-impl Default for ClickableRect {
-    fn default() -> Self {
-        Self { clicked: false }
-    }
-}
-
 pub struct TileMapGridPlugin;
 
 impl Plugin for TileMapGridPlugin {
@@ -35,8 +24,8 @@ impl Plugin for TileMapGridPlugin {
 
 fn startup(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    _meshes: ResMut<Assets<Mesh>>,
+    _materials: ResMut<Assets<ColorMaterial>>,
     asset_server: Res<AssetServer>,
 ) {
     info!("TileMapGridPlugin startup function called!");
@@ -131,11 +120,12 @@ fn startup(
             Transform::from_xyz(x_offset, y_offset, 1.0),
             Pickable::default(),
         ))
-        .observe(recolor_on::<Pointer<Over>>(Color::srgb(0.0, 1.0, 1.0)))
+        .observe(resize_on_drag())
         .observe(recolor_on::<Pointer<Out>>(Color::srgb(0.682, 0.506, 0.827)))
         .observe(recolor_on::<Pointer<Click>>(Color::srgb(0.051, 0.573, 0.573)));
 
 }
+
 fn recolor_on<E: Debug + Clone + Reflect>(color: Color) -> impl Fn(Trigger<E>, Query<&mut Sprite>) {
     move |ev, mut sprites| {
         log::info!("MOUSE MOVED");
@@ -145,6 +135,24 @@ fn recolor_on<E: Debug + Clone + Reflect>(color: Color) -> impl Fn(Trigger<E>, Q
         sprite.color = color;
     }
 }
+fn resize_on_drag() -> impl Fn(Trigger<Pointer<Drag>>, Query<(&mut Transform, &Sprite)>) {
+    move |ev, mut query| {
+        let Ok((mut transform, sprite)) = query.get_mut(ev.target()) else {
+            return;
+        };
+        
+        let drag_event = ev.event();
+        let delta = drag_event.delta;
+        let sprite_size = sprite.custom_size.unwrap_or(Vec2::new(100.0, 100.0));
+        let factor = Vec2::new(1.0, -1.0);
+        let size_change = delta * factor;
+        let current_scale_2d = Vec2::new(transform.scale.x, transform.scale.y);
+        let new_scale = (current_scale_2d * sprite_size + size_change) / sprite_size;
+        transform.scale = new_scale.clamp(Vec2::splat(0.1), Vec2::splat(15.0)).extend(transform.scale.z);
+    }
+}
+
+
 
 // fn swap_texture_or_hide(
 //     asset_server: Res<AssetServer>,
