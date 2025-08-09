@@ -1,13 +1,15 @@
+mod events;
+mod observers;
+mod components;
 
-use crate::GameState;
+use crate::{gameplay::tile_map_grid::{components::GridCell, events::CellResized, observers::cell_resized_observer}, GameState};
 use bevy::prelude::*;
-use bevy_ecs_tilemap::prelude::*;
-use bevy_picking::prelude::*;
 use std::fmt::Debug;
 
 
-const QUADRANT_SIDE_LENGTH: u32 = 64;
-
+const CELL_SIZE: f32 = 20.0;
+const GAP_SIZE: f32 = 0.0;
+const N: usize = 20;
 pub struct TileMapGridPlugin;
 
 impl Plugin for TileMapGridPlugin {
@@ -16,131 +18,84 @@ impl Plugin for TileMapGridPlugin {
             .add_systems(
                 OnEnter(GameState::TileMapGrid), 
                 startup
-            );
+            )            
+            .add_observer(cell_resized_observer);
     }
 }
 
 
 
+
 fn startup(
-    mut commands: Commands,
-    _meshes: ResMut<Assets<Mesh>>,
-    _materials: ResMut<Assets<ColorMaterial>>,
-    asset_server: Res<AssetServer>,
+    mut commands: Commands,   
+    windows: Query<&Window>,
 ) {
-    info!("TileMapGridPlugin startup function called!");
-    // Camera is spawned by DrawingMenuPlugin, no need to spawn another one
-    let texture_handle: Handle<Image> = asset_server.load("tiles.png");
-
-    // In total, there will be `(QUADRANT_SIDE_LENGTH * 2) * (QUADRANT_SIDE_LENGTH * 2)` tiles.
-    let map_size = TilemapSize {
-        x: QUADRANT_SIDE_LENGTH * 2,
-        y: QUADRANT_SIDE_LENGTH * 2,
-    };
-    let quadrant_size = TilemapSize {
-        x: QUADRANT_SIDE_LENGTH,
-        y: QUADRANT_SIDE_LENGTH,
-    };
-
-    let mut tile_storage = TileStorage::empty(map_size);
-    let tilemap_entity = commands.spawn_empty().id();
-    let tilemap_id = TilemapId(tilemap_entity);
-
-    fill_tilemap_rect_color(
-        TileTextureIndex(5),
-        TilePos { x: 0, y: 0 },
-        quadrant_size,
-        Color::srgba(1.0, 0.0, 0.0, 1.0),
-        tilemap_id,
-        &mut commands,
-        &mut tile_storage,
+    if let Ok(window) = windows.single() {
+        let window_size = Vec2::new(window.width(), window.height());
+        commands.spawn((
+            Sprite::from_color(Color::BLACK, Vec2::new(window_size.x, window_size.y)),
+            Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)),
+        ));
+    }
+    let grid = Vec2::new(N as f32, N as f32); // 2x2 grid
+    let grid_vec = Vec2::new(
+        CELL_SIZE + GAP_SIZE, 
+        CELL_SIZE + GAP_SIZE
     );
-
-    fill_tilemap_rect_color(
-        TileTextureIndex(5),
-        TilePos {
-            x: QUADRANT_SIDE_LENGTH,
-            y: 0,
-        },
-        quadrant_size,
-        Color::srgba(0.0, 1.0, 0.0, 1.0),
-        tilemap_id,
-        &mut commands,
-        &mut tile_storage,
-    );
-
-    fill_tilemap_rect_color(
-        TileTextureIndex(5),
-        TilePos {
-            x: 0,
-            y: QUADRANT_SIDE_LENGTH,
-        },
-        quadrant_size,
-        Color::srgba(0., 0., 0., 1.),
-        tilemap_id,
-        &mut commands,
-        &mut tile_storage,
-    );
-
-    fill_tilemap_rect_color(
-        TileTextureIndex(5),
-        TilePos {
-            x: QUADRANT_SIDE_LENGTH,
-            y: QUADRANT_SIDE_LENGTH,
-        },
-        quadrant_size,
-        Color::srgba(1.0, 1.0, 0.0, 1.0),
-        tilemap_id,
-        &mut commands,
-        &mut tile_storage,
-    );
-
-    let tile_size = TilemapTileSize { x: 16.0, y: 16.0 };
-    let grid_size = tile_size.into();
-
-    commands.entity(tilemap_entity).insert(TilemapBundle {
-        grid_size,
-        size: map_size,
-        storage: tile_storage,
-        texture: TilemapTexture::Single(texture_handle),
-        tile_size,
-        map_type: TilemapType::Square,
-        anchor: TilemapAnchor::Center,
-        ..Default::default()
-    });
-    let width = 100.0;
-    let height = 100.0;
-    let x_offset = 0.0;
-    let y_offset = 0.0;
+    let sprite_size = Vec2::new(CELL_SIZE, CELL_SIZE);
+    (0..grid.x as usize).for_each(|i|
+        (0..grid.y as usize).for_each(|j| {
+            let pos = Vec2::new(
+                i as f32 , 
+                j as f32 
+            );
+            let pos = pos * grid_vec;
+            spawn_cell(&mut commands, pos, sprite_size, i, j);
+        }));
     
-    let sprite_size = Vec2::new(width, height);
-     commands
-        .spawn((
-            Sprite::from_color(Color::BLACK, sprite_size),
-            Transform::from_xyz(x_offset, y_offset, 1.0),
-            Pickable::default(),
-        ))
-        .observe(resize_on_drag())
-        .observe(recolor_on::<Pointer<Out>>(Color::srgb(0.682, 0.506, 0.827)))
-        .observe(recolor_on::<Pointer<Click>>(Color::srgb(0.051, 0.573, 0.573)));
-
 }
 
-fn recolor_on<E: Debug + Clone + Reflect>(color: Color) -> impl Fn(Trigger<E>, Query<&mut Sprite>) {
+fn spawn_cell(
+    commands: &mut Commands,
+    position: Vec2,
+    size: Vec2,
+    col: usize,
+    row: usize,
+) {
+    commands.spawn((
+        Sprite::from_color(Color::WHITE, size),
+        Transform::from_translation(position.extend(0.0)),
+        Pickable::default(),
+        GridCell {
+            row,
+            col,
+        },
+    ))
+    .observe(resize_on_drag())
+    .observe(toggle_color_on::<Pointer<Click>>());
+}
+
+fn toggle_color_on<E: Debug + Clone + Reflect>() -> impl Fn(Trigger<E>, Query<&mut Sprite>) {
     move |ev, mut sprites| {
         log::info!("MOUSE MOVED");
         let Ok(mut sprite) = sprites.get_mut(ev.target()) else {
             return;
         };
-        sprite.color = color;
+        if sprite.color == Color::WHITE {
+            sprite.color = Color::BLACK;
+        } else {
+            sprite.color = Color::WHITE;
+        }
+     
     }
 }
-fn resize_on_drag() -> impl Fn(Trigger<Pointer<Drag>>, Query<(&mut Transform, &Sprite)>) {
-    move |ev, mut query| {
-        let Ok((mut transform, sprite)) = query.get_mut(ev.target()) else {
+fn resize_on_drag() -> impl Fn(Trigger<Pointer<Drag>>, Query<(&mut Transform, &GridCell, &Sprite)>, Commands) {
+    move |mut ev, mut query, mut commands| {
+        let Ok((mut transform, grid_cell, sprite)) = query.get_mut(ev.target()) else {
             return;
         };
         
+        ev.propagate(false);
         let drag_event = ev.event();
         let delta = drag_event.delta;
         let sprite_size = sprite.custom_size.unwrap_or(Vec2::new(100.0, 100.0));
@@ -149,33 +104,13 @@ fn resize_on_drag() -> impl Fn(Trigger<Pointer<Drag>>, Query<(&mut Transform, &S
         let current_scale_2d = Vec2::new(transform.scale.x, transform.scale.y);
         let new_scale = (current_scale_2d * sprite_size + size_change) / sprite_size;
         transform.scale = new_scale.clamp(Vec2::splat(0.1), Vec2::splat(15.0)).extend(transform.scale.z);
+        
+        commands.trigger(CellResized {
+            width: new_scale.x,
+            height: new_scale.y,
+            row: grid_cell.row,
+            col: grid_cell.col,
+        });
+     
     }
 }
-
-
-
-// fn swap_texture_or_hide(
-//     asset_server: Res<AssetServer>,
-//     keyboard_input: Res<ButtonInput<KeyCode>>,
-//     mut query: Query<(&mut TilemapTexture, &mut Visibility)>,
-// ) {
-//     if keyboard_input.just_pressed(KeyCode::Space) {
-//         let texture_a = TilemapTexture::Single(asset_server.load("tiles.png"));
-//         let texture_b = TilemapTexture::Single(asset_server.load("tiles2.png"));
-//         for (mut tilemap_tex, _) in &mut query {
-//             if *tilemap_tex == texture_a {
-//                 *tilemap_tex = texture_b.clone();
-//             } else {
-//                 *tilemap_tex = texture_a.clone();
-//             }
-//         }
-//     }
-//     if keyboard_input.just_pressed(KeyCode::KeyH) {
-//         for (_, mut visibility) in &mut query {
-//             *visibility = match *visibility {
-//                 Visibility::Inherited | Visibility::Visible => Visibility::Hidden,
-//                 Visibility::Hidden => Visibility::Visible,
-//             };
-//         }
-//     }
-// }
