@@ -1,9 +1,10 @@
 mod events;
 mod observers;
-mod components;
+pub mod components;
 
-use crate::{gameplay::tile_map_grid::{components::GridCell, events::CellResized, observers::cell_resized_observer}, GameState};
+use crate::{gameplay::tile_map_grid::{components::{GridCell, SelectedCell, MainCell, Selector}, events::CellResized, observers::cell_resized_observer}, GameState};
 use bevy::prelude::*;
+use bevy::ecs::system::ParamSet;
 use std::fmt::Debug;
 
 
@@ -16,7 +17,7 @@ impl Plugin for TileMapGridPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(
-                OnEnter(GameState::TileMapGrid), 
+                OnEnter(GameState::Motors), 
                 startup
             )            
             .add_observer(cell_resized_observer);
@@ -30,13 +31,7 @@ fn startup(
     mut commands: Commands,   
     windows: Query<&Window>,
 ) {
-    if let Ok(window) = windows.single() {
-        let window_size = Vec2::new(window.width(), window.height());
-        commands.spawn((
-            Sprite::from_color(Color::BLACK, Vec2::new(window_size.x, window_size.y)),
-            Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)),
-        ));
-    }
+   
     let grid = Vec2::new(N as f32, N as f32); // 2x2 grid
     let grid_vec = Vec2::new(
         CELL_SIZE + GAP_SIZE, 
@@ -70,23 +65,79 @@ fn spawn_cell(
             row,
             col,
         },
+        MainCell,
     ))
     .observe(resize_on_drag())
     .observe(toggle_color_on::<Pointer<Click>>());
 }
 
-fn toggle_color_on<E: Debug + Clone + Reflect>() -> impl Fn(Trigger<E>, Query<&mut Sprite>) {
-    move |ev, mut sprites| {
-        log::info!("MOUSE MOVED");
-        let Ok(mut sprite) = sprites.get_mut(ev.target()) else {
-            return;
+fn toggle_color_on<E: Debug + Clone + Reflect>() -> impl Fn(Trigger<E>, Commands, 
+    ParamSet<
+        (
+        Query<(&mut Sprite, &Transform, &GridCell, Option<&SelectedCell>), With<MainCell>>, 
+        Query<&mut Sprite, With<MainCell>>, Query<Entity, With<MainCell>>)>, 
+        Query<Entity, With<Selector>>
+    ) {
+    move |ev, mut commands, mut param_set, selector_entities| {
+        log::info!("Cell clicked");
+        let clicked_entity = ev.target();
+        
+        // First, get the clicked cell data
+        let (transform, grid_cell, is_selected) = {
+            let mut main_sprites = param_set.p0();
+            let Ok((_sprite, transform, grid_cell, selected_cell)) = main_sprites.get_mut(clicked_entity) else {
+                return;
+            };
+            (*transform, grid_cell.clone(), selected_cell.is_some())
         };
-        if sprite.color == Color::WHITE {
-            sprite.color = Color::BLACK;
-        } else {
-            sprite.color = Color::WHITE;
+        
+        // Remove any existing selector entities (blue borders)
+        for entity in selector_entities.iter() {
+            commands.entity(entity).despawn();
         }
-     
+        
+        // Remove SelectedCell component from all main cells
+        {
+            let main_cell_entities = param_set.p2();
+            for entity in main_cell_entities.iter() {
+                commands.entity(entity).remove::<SelectedCell>();
+            }
+        }
+        
+        // Reset all main cells to white (unselected state)
+        // {
+        //     let mut all_main_cells = param_set.p1();
+        //     for mut cell_sprite in all_main_cells.iter_mut() {
+        //         cell_sprite.color = Color::WHITE;
+        //     }
+        // }
+        
+        // If the clicked cell was not selected, select it
+        if !is_selected {
+            // Set the clicked cell to black and add SelectedCell component
+            {
+                let mut main_sprites = param_set.p0();
+                if let Ok((mut sprite, _, _, _)) = main_sprites.get_mut(clicked_entity) {
+                    sprite.color = Color::BLACK;
+                }
+            }
+            commands.entity(clicked_entity).insert(SelectedCell);
+            
+            // Spawn a blue selector sprite underneath the selected cell
+            let cell_size = Vec2::new(CELL_SIZE, CELL_SIZE);
+            let smaller_size = cell_size * 0.8; // 20% larger for border effect
+            
+            commands.spawn((
+                Sprite::from_color(Color::hsl(240.0, 0.8, 0.6), smaller_size),
+                Transform::from_translation(transform.translation - Vec3::new(0.0, 0.0, -0.1)), // Slightly before
+                Selector,
+                GridCell {
+                    row: grid_cell.row,
+                    col: grid_cell.col,
+                },
+            ));
+        }
+        // If the clicked cell was selected, it gets deselected (already done above)
     }
 }
 fn resize_on_drag() -> impl Fn(Trigger<Pointer<Drag>>, Query<(&mut Transform, &GridCell, &Sprite)>, Commands) {

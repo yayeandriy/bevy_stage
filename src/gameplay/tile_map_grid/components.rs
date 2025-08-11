@@ -17,3 +17,12 @@ impl Default for GridCell {
         }
     }
 }
+
+#[derive(Component, Debug, Clone)]
+pub struct SelectedCell;
+
+#[derive(Component, Debug, Clone)]
+pub struct MainCell;
+
+#[derive(Component, Debug, Clone)]
+pub struct Selector;

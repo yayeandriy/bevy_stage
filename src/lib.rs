@@ -7,7 +7,7 @@ mod systems;
 
 use crate::gameplay::ui_grid::UIGridPlugin;
 use crate::ui::{StartupMenuPlugin, DrawingMenuPlugin};
-use crate::gameplay::{ActionsPlugin, FlockPlugin, MeshGridPlugin, TileMapGridPlugin};
+use crate::gameplay::{ActionsPlugin, FlockPlugin, MeshGridPlugin, MotorsPlugin, TileMapGridPlugin};
 use crate::shaders::AnimatedShaderPlugin;
 use crate::systems::{LoadingPlugin, InternalAudioPlugin};
 
@@ -28,6 +28,7 @@ enum GameState {
     Playing,
     MeshGrid,
     TileMapGrid,
+    Motors,
     // Here the menu is drawn and waiting for player interaction
     Startup,
 }
@@ -48,7 +49,8 @@ impl Plugin for GamePlugin {
             // UIGridPlugin,
             MeshGridPlugin,
             TilemapPlugin,
-            TileMapGridPlugin
+            TileMapGridPlugin,
+            MotorsPlugin
             // ShaderPlugin
         ));
 
