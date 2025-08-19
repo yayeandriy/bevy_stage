@@ -48,7 +48,10 @@ for arch in $ARCHS; do
         # Hardware iOS targets
         cargo rustc --crate-type staticlib --lib $RELFLAG --target aarch64-apple-ios
       else
-        # M1 iOS simulator -- currently in Nightly only and requires to build `libstd`
+        # M1 iOS simulator - set proper clang target for bindgen
+        export CFLAGS_aarch64_apple_ios_sim="-target arm64-apple-ios15.0-simulator"
+        export BINDGEN_EXTRA_CLANG_ARGS_aarch64_apple_ios_sim="--target=arm64-apple-ios15.0-simulator"
+        export BINDGEN_EXTRA_CLANG_ARGS="--target=arm64-apple-ios15.0-simulator"
         cargo rustc --crate-type staticlib --lib $RELFLAG --target aarch64-apple-ios-sim
       fi
   esac
