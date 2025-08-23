@@ -15,3 +15,9 @@ pub struct MotorButton {
     pub freq: f64,
 }
 
+#[derive(Component)]
+pub struct BackButton;
+
+#[derive(Component)]
+pub struct MotorsEntity;
+

@@ -7,7 +7,6 @@ pub struct MeshGridContainer;
 pub struct GridCell {
     pub row: usize,
     pub col: usize,
-    pub is_black: bool, // Flag to indicate if the cell is black
 }
 
 impl Default for GridCell {
@@ -15,7 +14,15 @@ impl Default for GridCell {
         Self {
             row: 0,
             col: 0,
-            is_black: false,
         }
     }
 }
+
+#[derive(Component, Debug, Clone)]
+pub struct SelectedCell;
+
+#[derive(Component, Debug, Clone)]
+pub struct MainCell;
+
+#[derive(Component, Debug, Clone)]
+pub struct Selector;

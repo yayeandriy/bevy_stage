@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_picking::prelude::{Pickable, Pointer, Click};
-use crate::gameplay::motors::{Background, Motor, MotorButton};
+use crate::plugins::motors::{Background, Motor, MotorButton, BackButton, MotorsEntity};
+use crate::GameState;
 
 
 
@@ -10,15 +11,28 @@ pub fn startup(
 ) {
     if let Ok(window) = windows.single() {
         let window_size = Vec2::new(window.width(), window.height());
+        
+        // Spawn camera
+        commands.spawn((
+            Camera2d,
+            Msaa::Off,
+            MotorsEntity,
+        ));
+        
         commands.spawn((
             Sprite::from_color(Color::hsla(90.0, 0.6, 0.2, 1.0), Vec2::new(window_size.x, window_size.y)),
             Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)),
             Background,
+            MotorsEntity,
         ));
         commands.spawn((
             Text2d::new("Motors"),
             Transform::from_translation(Vec3::new(0.0, window_size.y / 2.0 - 50.0, 0.0)),
+            MotorsEntity,
         ));
+        
+        // Spawn back button
+        spawn_motors_ui(&mut commands, window_size);
         
         // Create multiple motor buttons with different frequencies and colors
         let motor_configs = [
@@ -36,6 +50,7 @@ pub fn startup(
                 Pickable::default(),
                 MotorButton { freq: *freq },
                 Motor { freq: *freq }, // Each motor button has its own motor effect
+                MotorsEntity,
             ))
              .observe(click_on_motor());
         }
@@ -46,7 +61,7 @@ pub fn startup(
 
 pub fn motors_update(
     mut motor_button_query: Query<(Entity, &Motor, &mut Sprite), With<MotorButton>>,
-    mut grid_cell_query: Query<(Entity, &Motor, &mut Sprite), (Without<MotorButton>, With<crate::gameplay::tile_map_grid::components::GridCell>)>,
+    mut grid_cell_query: Query<(Entity, &Motor, &mut Sprite), (Without<MotorButton>, With<crate::plugins::tile_map_grid::components::GridCell>)>,
     time: Res<Time>,
 ) {
     // Update motor buttons with full color animation (same as grid cells)
@@ -70,7 +85,7 @@ pub fn motors_update(
 }
 
 
-fn click_on_motor() -> impl Fn(Trigger<Pointer<Click>>, Commands, Query<&MotorButton>, Query<(Entity, Option<&Motor>), (With<crate::gameplay::tile_map_grid::components::SelectedCell>, With<crate::gameplay::tile_map_grid::components::GridCell>, With<Sprite>)>) {
+fn click_on_motor() -> impl Fn(Trigger<Pointer<Click>>, Commands, Query<&MotorButton>, Query<(Entity, Option<&Motor>), (With<crate::plugins::tile_map_grid::components::SelectedCell>, With<crate::plugins::tile_map_grid::components::GridCell>, With<Sprite>)>) {
     move |ev, mut commands, motor_buttons, selected_grid_cells| {
         let clicked_entity = ev.target();
         log::info!("Motor button clicked: {:?}", clicked_entity);
@@ -92,5 +107,57 @@ fn click_on_motor() -> impl Fn(Trigger<Pointer<Click>>, Commands, Query<&MotorBu
         } else {
             log::warn!("Clicked entity is not a motor button: {:?}", clicked_entity);
         }
+    }
+}
+
+fn spawn_motors_ui(commands: &mut Commands, window_size: Vec2) {
+    // Back button
+    commands.spawn((
+        Sprite::from_color(Color::srgb(0.8, 0.2, 0.2), Vec2::new(80.0, 40.0)),
+        Transform::from_translation(Vec3::new(-window_size.x / 2.0 + 60.0, window_size.y / 2.0 - 40.0, 0.0)),
+        BackButton,
+        MotorsEntity,
+    ));
+    
+    commands.spawn((
+        Text2d::new("Back"),
+        Transform::from_translation(Vec3::new(-window_size.x / 2.0 + 60.0, window_size.y / 2.0 - 40.0, 1.0)),
+        MotorsEntity,
+    ));
+}
+
+pub fn handle_back_button(
+    mouse_input: Res<ButtonInput<MouseButton>>,
+    window_query: Query<&Window>,
+    camera_query: Query<(&Camera, &GlobalTransform)>,
+    back_button_query: Query<&Transform, With<BackButton>>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    if mouse_input.just_pressed(MouseButton::Left) {
+        if let (Ok(window), Ok((camera, camera_transform))) = (window_query.single(), camera_query.single()) {
+            if let Some(cursor_pos) = window.cursor_position() {
+                if let Ok(world_pos) = camera.viewport_to_world_2d(camera_transform, cursor_pos) {
+                    for button_transform in back_button_query.iter() {
+                        let button_pos = button_transform.translation.truncate();
+                        let button_size = Vec2::new(80.0, 40.0);
+                        let button_rect = bevy::math::Rect::from_center_size(button_pos, button_size);
+                        
+                        if button_rect.contains(world_pos) {
+                            next_state.set(GameState::Startup);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+pub fn cleanup_motors(
+    mut commands: Commands,
+    query: Query<Entity, With<MotorsEntity>>,
+) {
+    for entity in query.iter() {
+        commands.entity(entity).despawn();
     }
 }

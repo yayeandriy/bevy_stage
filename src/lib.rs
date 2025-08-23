@@ -1,20 +1,17 @@
 #![allow(clippy::type_complexity)]
 
 mod ui;
-mod gameplay;
-mod shaders;
+mod plugins;
+mod spaces;
 mod systems;
 
-use crate::gameplay::ui_grid::UIGridPlugin;
-use crate::ui::{StartupMenuPlugin, DrawingMenuPlugin};
-use crate::gameplay::{ActionsPlugin, FlockPlugin, MeshGridPlugin, MotorsPlugin, TileMapGridPlugin};
-use crate::shaders::AnimatedShaderPlugin;
-use crate::systems::{LoadingPlugin, InternalAudioPlugin};
+use crate::spaces::{GridSpacePlugin, GridAndMotorsSpacePlugin};
+use crate::ui::{StartupMenuPlugin}; // DrawingMenuPlugin removed due to camera conflicts
+use crate::systems::LoadingPlugin;
 
 use bevy::app::App;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::TilemapPlugin;
-use bevy_picking::prelude::*;
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -24,11 +21,8 @@ enum GameState {
     // During the loading State the LoadingPlugin will load our assets
     #[default]
     Loading,
-    // During this State the actual game logic is executed
-    Playing,
-    MeshGrid,
-    TileMapGrid,
-    Motors,
+    Grid,
+    GridAndMotors,
     // Here the menu is drawn and waiting for player interaction
     Startup,
 }
@@ -40,18 +34,10 @@ impl Plugin for GamePlugin {
         app.init_state::<GameState>().add_plugins((
             LoadingPlugin,
             StartupMenuPlugin,
-            DrawingMenuPlugin,
-            ActionsPlugin,
-            InternalAudioPlugin,
-            // PlayerPlugin,
-            FlockPlugin,
-            // AnimatedShaderPlugin,
-            // UIGridPlugin,
-            MeshGridPlugin,
+            // DrawingMenuPlugin, // Disabled - causes camera conflicts with Motors state
             TilemapPlugin,
-            TileMapGridPlugin,
-            MotorsPlugin
-            // ShaderPlugin
+            GridSpacePlugin,
+            GridAndMotorsSpacePlugin
         ));
 
         #[cfg(debug_assertions)]

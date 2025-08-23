@@ -36,7 +36,7 @@ struct Menu;
 struct StartupMenuCamera;
 
 fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
-    info!("menu");
+    info!("Starting Grid Demo Menu");
     commands.spawn((Camera2d, Msaa::Off, StartupMenuCamera));
     commands
         .spawn((
@@ -46,58 +46,129 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                 flex_direction: FlexDirection::Column,
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
+                padding: UiRect::all(Val::Px(20.0)),
                 ..default()
             },
+            BackgroundColor(Color::linear_rgb(0.1, 0.1, 0.15)),
             Menu,
         ))
         .with_children(|children| {
-            let button_colors = ButtonColors::default();
+            // Title
+            children.spawn((
+                Text::new("Grid Demo"),
+                TextFont {
+                    font_size: 48.0,
+                    ..default()
+                },
+                TextColor(Color::linear_rgb(1.0, 1.0, 1.0)),
+                Node {
+                    margin: UiRect::bottom(Val::Px(30.0)),
+                    ..default()
+                },
+            ));
+
+            // Subtitle
+            children.spawn((
+                Text::new("Choose a grid type to explore:"),
+                TextFont {
+                    font_size: 24.0,
+                    ..default()
+                },
+                TextColor(Color::linear_rgb(0.8, 0.8, 0.8)),
+                Node {
+                    margin: UiRect::bottom(Val::Px(40.0)),
+                    ..default()
+                },
+            ));
+
+            // Grid of buttons for different grid types
             children
-                .spawn((
-                    Button,
-                    Node {
-                        width: Val::Px(140.0),
-                        height: Val::Px(50.0),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        ..Default::default()
-                    },
-                    BackgroundColor(button_colors.normal),
-                    button_colors,
-                    ChangeState(GameState::Playing),
-                ))
-                .with_child((
-                    Text::new("Play"),
-                    TextFont {
-                        font_size: 40.0,
-                        ..default()
-                    },
-                    TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
-                ));
-            let button_colors = ButtonColors::default();
-            children
-                .spawn((
-                    Button,
-                    Node {
-                        width: Val::Px(140.0),
-                        height: Val::Px(50.0),
-                        // margin: UiRect::all(Val::Px(5.)),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        ..Default::default()
-                    },
-                    BackgroundColor(button_colors.normal),
-                    button_colors,
-                    ChangeState(GameState::TileMapGrid),
-                ))
-                .with_child((
-                    Text::new("Draw"),
-                    TextFont {
-                        font_size: 40.0,
-                        ..default()
-                    },
-                    TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
-                ));
+                .spawn(Node {
+                    display: Display::Grid,
+                    grid_template_columns: vec![GridTrack::fr(1.0), GridTrack::fr(1.0)],
+                    grid_template_rows: vec![GridTrack::auto(), GridTrack::auto(), GridTrack::auto()],
+                    column_gap: Val::Px(20.0),
+                    row_gap: Val::Px(20.0),
+                    width: Val::Percent(80.0),
+                    max_width: Val::Px(600.0),
+                    ..default()
+                })
+                .with_children(|grid| {
+                    // Mesh Grid Button
+                    // TileMap Grid Button
+                    let button_colors = ButtonColors {
+                        normal: Color::linear_rgb(0.8, 0.4, 0.2).with_alpha(0.8),
+                        hovered: Color::linear_rgb(0.8, 0.4, 0.2),
+                    };
+                    grid.spawn((
+                        Button,
+                        Node {
+                            flex_direction: FlexDirection::Column,
+                            align_items: AlignItems::Center,
+                            justify_content: JustifyContent::Center,
+                            padding: UiRect::all(Val::Px(20.0)),
+                            border: UiRect::all(Val::Px(2.0)),
+                            min_height: Val::Px(120.0),
+                            ..default()
+                        },
+                        BackgroundColor(button_colors.normal),
+                        BorderColor(Color::linear_rgb(0.8, 0.4, 0.2)),
+                        button_colors,
+                        ChangeState(GameState::GridAndMotors),
+                    ))
+                    .with_children(|button| {
+                        button.spawn((
+                            Text::new("Grid + Motors Space"),
+                            TextFont { font_size: 20.0, ..default() },
+                            TextColor(Color::WHITE),
+                            Node { margin: UiRect::bottom(Val::Px(8.0)), ..default() },
+                        ));
+                        button.spawn((
+                            Text::new("Clickable tilemap grid with\nselection and motor effects"),
+                            TextFont { font_size: 14.0, ..default() },
+                            TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
+                            TextLayout { justify: JustifyText::Center, ..default() },
+                        ));
+                    });
+
+                    // UI Grid Button
+                    // Line Grid Button
+                    let button_colors = ButtonColors {
+                        normal: Color::linear_rgb(0.8, 0.3, 0.8).with_alpha(0.8),
+                        hovered: Color::linear_rgb(0.8, 0.3, 0.8),
+                    };
+                    grid.spawn((
+                        Button,
+                        Node {
+                            flex_direction: FlexDirection::Column,
+                            align_items: AlignItems::Center,
+                            justify_content: JustifyContent::Center,
+                            padding: UiRect::all(Val::Px(20.0)),
+                            border: UiRect::all(Val::Px(2.0)),
+                            min_height: Val::Px(120.0),
+                            ..default()
+                        },
+                        BackgroundColor(button_colors.normal),
+                        BorderColor(Color::linear_rgb(0.8, 0.3, 0.8)),
+                        button_colors,
+                        ChangeState(GameState::Grid),
+                    ))
+                    .with_children(|button| {
+                        button.spawn((
+                            Text::new("Grid Space"),
+                            TextFont { font_size: 20.0, ..default() },
+                            TextColor(Color::WHITE),
+                            Node { margin: UiRect::bottom(Val::Px(8.0)), ..default() },
+                        ));
+                        button.spawn((
+                            Text::new("Line-based grid system\nfor geometric patterns"),
+                            TextFont { font_size: 14.0, ..default() },
+                            TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
+                            TextLayout { justify: JustifyText::Center, ..default() },
+                        ));
+                    });
+
+                });
         });
     // commands
     //     .spawn((

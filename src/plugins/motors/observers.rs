@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::gameplay::motors::{Motor, ToggleMotor};
+use crate::plugins::motors::{Motor, ToggleMotor};
 
 
 
