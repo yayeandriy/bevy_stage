@@ -1,4 +1,4 @@
-use crate::plugins::motors::systems::{motors_update, handle_back_button, cleanup_motors};
+use crate::plugins::motors::systems::{motors_update, cleanup_motors};
 use crate::plugins::motors::systems::startup as motors_startup;
 use crate::GameState;
 use bevy::prelude::*;
@@ -14,7 +14,7 @@ impl Plugin for MotorsPlugin {
             )
             .add_systems(
                 Update,
-                (motors_update, handle_back_button).run_if(in_state(GameState::GridAndMotors))
+                motors_update.run_if(in_state(GameState::GridAndMotors))
             )
             .add_systems(
                 OnExit(GameState::GridAndMotors),
