@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use crate::{GameState, spaces::flexer::{events::BackButtonPressed, observers::back_button_pressed_observer}, plugins::FlexGridPlugin};
 
 #[derive(Component)]
-struct BackButton;
+pub struct BackButton;
 
 #[derive(Component)]
 struct FlexerSpaceEntity;
@@ -44,7 +44,7 @@ fn setup_flexer_space(mut commands: Commands, windows: Query<&Window>) {
         let button_size = 40.0;
         let margin = 20.0;
         
-        // Calculate position in top-left corner
+        // Calculate position in top-left corner (fixed world coordinates)
         let button_x = -window_size.x / 2.0 + margin + button_size / 2.0;
         let button_y = window_size.y / 2.0 - margin - button_size / 2.0;
         

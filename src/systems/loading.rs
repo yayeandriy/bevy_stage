@@ -12,7 +12,8 @@ impl Plugin for LoadingPlugin {
         app.add_loading_state(
             LoadingState::new(GameState::Loading)
                 .continue_to_state(GameState::Startup)
-                .load_collection::<TextureAssets>(),
+                .load_collection::<TextureAssets>()
+                .load_collection::<FontAssets>(),
         );
     }
 }
@@ -26,4 +27,14 @@ pub struct TextureAssets {
     pub bevy: Handle<Image>,
     #[asset(path = "textures/github.png")]
     pub github: Handle<Image>,
+}
+
+#[derive(AssetCollection, Resource)]
+pub struct FontAssets {
+    #[asset(path = "fonts/Geist-Regular.ttf")]
+    pub geist_regular: Handle<Font>,
+    #[asset(path = "fonts/Geist-Medium.ttf")]
+    pub geist_medium: Handle<Font>,
+    #[asset(path = "fonts/Geist-Bold.ttf")]
+    pub geist_bold: Handle<Font>,
 }

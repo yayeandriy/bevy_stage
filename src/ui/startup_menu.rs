@@ -1,4 +1,5 @@
-use crate::systems::loading::TextureAssets;
+use crate::systems::loading::{TextureAssets, FontAssets};
+use crate::ui::font_utils::*;
 use crate::GameState;
 use bevy::prelude::*;
 
@@ -35,7 +36,7 @@ struct Menu;
 #[derive(Component)]
 struct StartupMenuCamera;
 
-fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
+fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>, fonts: Res<FontAssets>) {
     info!("Starting Grid Demo Menu");
     commands.spawn((Camera2d, Msaa::Off, StartupMenuCamera));
     commands
@@ -55,12 +56,7 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
         .with_children(|children| {
             // Title
             children.spawn((
-                Text::new("Grid Demo"),
-                TextFont {
-                    font_size: 48.0,
-                    ..default()
-                },
-                TextColor(Color::linear_rgb(1.0, 1.0, 1.0)),
+                text_geist_bold_with_font("Grid Demo", 48.0, Color::linear_rgb(1.0, 1.0, 1.0), &fonts),
                 Node {
                     margin: UiRect::bottom(Val::Px(30.0)),
                     ..default()
@@ -69,12 +65,7 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
 
             // Subtitle
             children.spawn((
-                Text::new("Choose a grid type to explore:"),
-                TextFont {
-                    font_size: 24.0,
-                    ..default()
-                },
-                TextColor(Color::linear_rgb(0.8, 0.8, 0.8)),
+                text_geist_medium_with_font("Choose a grid type to explore:", 24.0, Color::linear_rgb(0.8, 0.8, 0.8), &fonts),
                 Node {
                     margin: UiRect::bottom(Val::Px(40.0)),
                     ..default()
@@ -118,15 +109,11 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                     ))
                     .with_children(|button| {
                         button.spawn((
-                            Text::new("Grid + Motors Space"),
-                            TextFont { font_size: 20.0, ..default() },
-                            TextColor(Color::WHITE),
+                            text_geist_medium_with_font("Grid + Motors Space", 20.0, Color::WHITE, &fonts),
                             Node { margin: UiRect::bottom(Val::Px(8.0)), ..default() },
                         ));
                         button.spawn((
-                            Text::new("Clickable tilemap grid with\nselection and motor effects"),
-                            TextFont { font_size: 14.0, ..default() },
-                            TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
+                            text_geist_regular_with_font("Clickable tilemap grid with\nselection and motor effects", 14.0, Color::linear_rgb(0.9, 0.9, 0.9), &fonts),
                             TextLayout { justify: JustifyText::Center, ..default() },
                         ));
                     });
@@ -155,15 +142,11 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                     ))
                     .with_children(|button| {
                         button.spawn((
-                            Text::new("Grid Space"),
-                            TextFont { font_size: 20.0, ..default() },
-                            TextColor(Color::WHITE),
+                            text_geist_medium_with_font("Grid Space", 20.0, Color::WHITE, &fonts),
                             Node { margin: UiRect::bottom(Val::Px(8.0)), ..default() },
                         ));
                         button.spawn((
-                            Text::new("Line-based grid system\nfor geometric patterns"),
-                            TextFont { font_size: 14.0, ..default() },
-                            TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
+                            text_geist_regular_with_font("Line-based grid system\nfor geometric patterns", 14.0, Color::linear_rgb(0.9, 0.9, 0.9), &fonts),
                             TextLayout { justify: JustifyText::Center, ..default() },
                         ));
                     });
@@ -191,15 +174,11 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                     ))
                     .with_children(|button| {
                         button.spawn((
-                            Text::new("Flexer Space"),
-                            TextFont { font_size: 20.0, ..default() },
-                            TextColor(Color::WHITE),
+                            text_geist_medium_with_font("Flexer Space", 20.0, Color::WHITE, &fonts),
                             Node { margin: UiRect::bottom(Val::Px(8.0)), ..default() },
                         ));
                         button.spawn((
-                            Text::new("Flexible space system\nfor dynamic interactions"),
-                            TextFont { font_size: 14.0, ..default() },
-                            TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
+                            text_geist_regular_with_font("Flexible space system\nfor dynamic interactions", 14.0, Color::linear_rgb(0.9, 0.9, 0.9), &fonts),
                             TextLayout { justify: JustifyText::Center, ..default() },
                         ));
                     });
