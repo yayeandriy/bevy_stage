@@ -5,9 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "cp -r .vercel dist && cp vercel.json dist && cd dist && vercel --prod"
-  },
-  "keywords": [],
+    "deploy": "cp -r .vercel dist && cp vercel.json dist && cd dist && vercel --prod",
+    "build": "trunk build --release",
+    "postinstall": "cargo install trunk"
+  }
+  ,"keywords": [],
   "author": "",
   "license": "ISC"
 }

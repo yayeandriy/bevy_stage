@@ -8,7 +8,7 @@ impl Plugin for GridAndMotorsSpacePlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((
             TileMapGridPlugin,
-            MotorsPlugin,
+            // MotorsPlugin,
         ));
     }
 }

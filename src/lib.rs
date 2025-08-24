@@ -5,7 +5,7 @@ mod plugins;
 mod spaces;
 mod systems;
 
-use crate::spaces::{GridSpacePlugin, GridAndMotorsSpacePlugin};
+use crate::spaces::{GridSpacePlugin, GridAndMotorsSpacePlugin, FlexerSpacePlugin};
 use crate::ui::{StartupMenuPlugin}; // DrawingMenuPlugin removed due to camera conflicts
 use crate::systems::LoadingPlugin;
 
@@ -23,6 +23,7 @@ enum GameState {
     Loading,
     Grid,
     GridAndMotors,
+    Flexer,
     // Here the menu is drawn and waiting for player interaction
     Startup,
 }
@@ -37,7 +38,8 @@ impl Plugin for GamePlugin {
             // DrawingMenuPlugin, // Disabled - causes camera conflicts with Motors state
             TilemapPlugin,
             GridSpacePlugin,
-            GridAndMotorsSpacePlugin
+            GridAndMotorsSpacePlugin,
+            FlexerSpacePlugin
         ));
 
         #[cfg(debug_assertions)]

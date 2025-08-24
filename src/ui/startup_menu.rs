@@ -168,6 +168,42 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                         ));
                     });
 
+                    // Flexer Space Button
+                    let button_colors = ButtonColors {
+                        normal: Color::linear_rgb(0.2, 0.6, 0.8).with_alpha(0.8),
+                        hovered: Color::linear_rgb(0.2, 0.6, 0.8),
+                    };
+                    grid.spawn((
+                        Button,
+                        Node {
+                            flex_direction: FlexDirection::Column,
+                            align_items: AlignItems::Center,
+                            justify_content: JustifyContent::Center,
+                            padding: UiRect::all(Val::Px(20.0)),
+                            border: UiRect::all(Val::Px(2.0)),
+                            min_height: Val::Px(120.0),
+                            ..default()
+                        },
+                        BackgroundColor(button_colors.normal),
+                        BorderColor(Color::linear_rgb(0.2, 0.6, 0.8)),
+                        button_colors,
+                        ChangeState(GameState::Flexer),
+                    ))
+                    .with_children(|button| {
+                        button.spawn((
+                            Text::new("Flexer Space"),
+                            TextFont { font_size: 20.0, ..default() },
+                            TextColor(Color::WHITE),
+                            Node { margin: UiRect::bottom(Val::Px(8.0)), ..default() },
+                        ));
+                        button.spawn((
+                            Text::new("Flexible space system\nfor dynamic interactions"),
+                            TextFont { font_size: 14.0, ..default() },
+                            TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
+                            TextLayout { justify: JustifyText::Center, ..default() },
+                        ));
+                    });
+
                 });
         });
     // commands
