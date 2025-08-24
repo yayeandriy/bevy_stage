@@ -2,10 +2,7 @@ mod events;
 mod observers;
 
 use bevy::prelude::*;
-use crate::{GameState, spaces::grid::{events::BackButtonPressed, observers::back_button_pressed_observer}, plugins::line_grid::LineGridPlugin};
-
-#[derive(Component)]
-struct BackButton;
+use crate::{GameState, spaces::grid::{events::BackButtonPressed, observers::back_button_pressed_observer}, plugins::line_grid::LineGridPlugin, ui::components::spawn_back_button, systems::loading::FontAssets};
 
 #[derive(Component)]
 struct GridSpaceEntity;
@@ -22,10 +19,6 @@ impl Plugin for GridSpacePlugin {
                 startup
             )
             .add_systems(
-                Update,
-                update_back_button_position.run_if(in_state(GameState::Grid))
-            )
-            .add_systems(
                 OnExit(GameState::Grid),
                 cleanup_grid_space
             )
@@ -33,41 +26,16 @@ impl Plugin for GridSpacePlugin {
     }
 }
 
-fn setup_grid_space(mut commands: Commands, windows: Query<&Window>) {
+fn setup_grid_space(mut commands: Commands, asset_server: Res<AssetServer>, fonts: Res<FontAssets>) {
     info!("Starting Grid Space");
     commands.spawn((Camera2d, Msaa::Off, GridSpaceEntity));
     
-    if let Ok(window) = windows.single() {
-        let window_size = Vec2::new(window.width(), window.height());
-        
-        // Back button - white square positioned in top-left corner
-        let button_size = 40.0;
-        let margin = 20.0;
-        
-        // Calculate position in top-left corner
-        let button_x = -window_size.x / 2.0 + margin + button_size / 2.0;
-        let button_y = window_size.y / 2.0 - margin - button_size / 2.0;
-        
-        commands.spawn((
-            Sprite::from_color(Color::WHITE, Vec2::new(button_size, button_size)),
-            Transform::from_xyz(button_x, button_y, 1.0),
-            Pickable::default(),
-            BackButton,
-            GridSpaceEntity,
-        ))
-        .observe(back_button_click_handler());
-    }
+    // Spawn UI back button
+    spawn_back_button(&mut commands, &asset_server, &fonts);
 }
 
-fn back_button_click_handler() -> impl Fn(Trigger<Pointer<Click>>, Commands) {
-    move |_ev, mut commands| {
-        log::info!("Back button clicked");
-        commands.trigger(BackButtonPressed);
-    }
-}
-
-fn startup(commands: Commands, windows: Query<&Window>) {
-    setup_grid_space(commands, windows);
+fn startup(commands: Commands, asset_server: Res<AssetServer>, fonts: Res<FontAssets>) {
+    setup_grid_space(commands, asset_server, fonts);
 }
 
 fn cleanup_grid_space(
@@ -76,25 +44,5 @@ fn cleanup_grid_space(
 ) {
     for entity in entities.iter() {
         commands.entity(entity).despawn();
-    }
-}
-
-fn update_back_button_position(
-    mut back_button_query: Query<&mut Transform, With<BackButton>>,
-    windows: Query<&Window, Changed<Window>>,
-) {
-    if let Ok(window) = windows.single() {
-        let window_size = Vec2::new(window.width(), window.height());
-        let button_size = 40.0;
-        let margin = 20.0;
-        
-        // Calculate new position in top-left corner
-        let button_x = -window_size.x / 2.0 + margin + button_size / 2.0;
-        let button_y = window_size.y / 2.0 - margin - button_size / 2.0;
-        
-        for mut transform in back_button_query.iter_mut() {
-            transform.translation.x = button_x;
-            transform.translation.y = button_y;
-        }
     }
 }
