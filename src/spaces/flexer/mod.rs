@@ -1,5 +1,8 @@
+mod events;
+mod observers;
+
 use bevy::prelude::*;
-use crate::{GameState, plugins::flex_grid::{events::BackButtonPressed, observers::back_button_pressed_observer}};
+use crate::{GameState, spaces::flexer::{events::BackButtonPressed, observers::back_button_pressed_observer}, plugins::FlexGridPlugin};
 
 #[derive(Component)]
 struct BackButton;
@@ -12,14 +15,11 @@ pub struct FlexerSpacePlugin;
 impl Plugin for FlexerSpacePlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_plugins(FlexGridPlugin)
             .add_event::<BackButtonPressed>()
             .add_systems(
                 OnEnter(GameState::Flexer), 
                 startup
-            )
-            .add_systems(
-                Update,
-                handle_back_button_click.run_if(in_state(GameState::Flexer))
             )
             .add_systems(
                 OnExit(GameState::Flexer),
@@ -29,68 +29,42 @@ impl Plugin for FlexerSpacePlugin {
     }
 }
 
-fn setup_flexer_space(mut commands: Commands) {
+fn setup_flexer_space(mut commands: Commands, windows: Query<&Window>) {
     info!("Starting Flexer Space");
     commands.spawn((Camera2d, Msaa::Off, FlexerSpaceEntity));
     
-    // Main red 800x800 sprite
-    let main_sprite_transform = Transform::from_xyz(0.0, 0.0, 0.0);
-    commands.spawn((
-        Sprite {
-            color: Color::linear_rgb(1.0, 0.0, 0.0),
-            custom_size: Some(Vec2::new(800.0, 800.0)),
-            ..default()
-        },
-        main_sprite_transform,
-        FlexerSpaceEntity,
-    ));
-
-    // Back button - positioned at top-left corner of screen
-    commands.spawn((
-        Button,
-        Node {
-            position_type: PositionType::Absolute,
-            left: Val::Px(20.0),
-            top: Val::Px(20.0),
-            width: Val::Px(100.0),
-            height: Val::Px(50.0),
-            border: UiRect::all(Val::Px(2.0)),
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            ..default()
-        },
-        BorderColor(Color::BLACK),
-        BackgroundColor(Color::WHITE),
-        BackButton,
-        FlexerSpaceEntity,
-    )).with_children(|parent| {
-        parent.spawn((
-            Text::new("Back"),
-            TextColor(Color::BLACK),
-            TextFont {
-                font_size: 16.0,
-                ..default()
-            },
-        ));
-    });
-}
-
-fn startup(commands: Commands) {
-    setup_flexer_space(commands);
-}
-
-fn handle_back_button_click(
-    mut interaction_query: Query<&Interaction, (Changed<Interaction>, With<BackButton>)>,
-    mut commands: Commands,
-) {
-    for interaction in &mut interaction_query {
-        match *interaction {
-            Interaction::Pressed => {
-                commands.trigger(BackButtonPressed);
-            }
-            _ => {}
-        }
+    if let Ok(window) = windows.single() {
+        let window_size = Vec2::new(window.width(), window.height());
+        
+        // Back button - white triangle pointing left, positioned in top-left corner
+        let button_size = 40.0; // Size of the triangle
+        let margin = 20.0; // Margin from screen edges
+        
+        // Calculate position in top-left corner
+        let button_x = -window_size.x / 2.0 + margin + button_size / 2.0;
+        let button_y = window_size.y / 2.0 - margin - button_size / 2.0;
+        
+        // Create a simple white square as back button
+        commands.spawn((
+            Sprite::from_color(Color::WHITE, Vec2::new(button_size, button_size)),
+            Transform::from_xyz(button_x, button_y, 1.0),
+            Pickable::default(),
+            BackButton,
+            FlexerSpaceEntity,
+        ))
+        .observe(back_button_click_handler());
     }
+}
+
+fn back_button_click_handler() -> impl Fn(Trigger<Pointer<Click>>, Commands) {
+    move |_ev, mut commands| {
+        log::info!("Back button clicked");
+        commands.trigger(BackButtonPressed);
+    }
+}
+
+fn startup(commands: Commands, windows: Query<&Window>) {
+    setup_flexer_space(commands, windows);
 }
 
 fn cleanup_flexer_space(
