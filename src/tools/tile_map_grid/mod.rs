@@ -2,8 +2,8 @@ mod events;
 mod observers;
 pub mod components;
 
-use crate::{plugins::tile_map_grid::{components::{GridCell, SelectedCell, MainCell, Selector}, events::CellResized, observers::cell_resized_observer}, GameState};
 use bevy::prelude::*;
+use crate::{tools::tile_map_grid::{components::{GridCell, SelectedCell, MainCell, Selector}, events::CellResized, observers::cell_resized_observer}, GameState};
 use bevy::ecs::system::ParamSet;
 use std::fmt::Debug;
 

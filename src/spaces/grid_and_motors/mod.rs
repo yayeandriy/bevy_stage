@@ -2,7 +2,7 @@ mod events;
 mod observers;
 
 use bevy::prelude::*;
-use crate::{GameState, spaces::grid_and_motors::{events::BackButtonPressed, observers::back_button_pressed_observer}, plugins::{MotorsPlugin, TileMapGridPlugin}, ui::components::spawn_back_button, systems::loading::FontAssets};
+use crate::{GameState, spaces::grid_and_motors::{events::BackButtonPressed, observers::back_button_pressed_observer}, tools::{MotorsPlugin, TileMapGridPlugin}, ui::components::spawn_back_button, systems::loading::FontAssets};
 
 #[derive(Component)]
 struct GridAndMotorsSpaceEntity;

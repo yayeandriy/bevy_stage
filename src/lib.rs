@@ -1,7 +1,7 @@
 #![allow(clippy::type_complexity)]
 
 mod ui;
-mod plugins;
+mod tools;
 mod spaces;
 mod systems;
 

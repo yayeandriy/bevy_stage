@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::plugins::line_grid::{components::GridCell, events::CellResized};
+use crate::tools::line_grid::{components::GridCell, events::CellResized};
 
 
 pub fn cell_resized_observer(

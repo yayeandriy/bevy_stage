@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::{GameState, plugins::flex_grid::events::BackButtonPressed};
+use crate::{GameState, tools::flex_grid::events::BackButtonPressed};
 
 pub fn back_button_pressed_observer(
     trigger: Trigger<BackButtonPressed>,

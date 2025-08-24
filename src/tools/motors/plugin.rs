@@ -1,5 +1,5 @@
-use crate::plugins::motors::systems::{motors_update, cleanup_motors};
-use crate::plugins::motors::systems::startup as motors_startup;
+use crate::tools::motors::systems::{motors_update, cleanup_motors};
+use crate::tools::motors::systems::startup as motors_startup;
 use crate::GameState;
 use bevy::prelude::*;
 

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_picking::prelude::{Pickable, Pointer, Click};
-use crate::plugins::motors::{Background, Motor, MotorButton, MotorsEntity};
+use crate::tools::motors::{Background, Motor, MotorButton, MotorsEntity};
 use crate::GameState;
 
 
@@ -56,7 +56,7 @@ pub fn startup(
 
 pub fn motors_update(
     mut motor_button_query: Query<(Entity, &Motor, &mut Sprite), With<MotorButton>>,
-    mut grid_cell_query: Query<(Entity, &Motor, &mut Sprite), (Without<MotorButton>, With<crate::plugins::tile_map_grid::components::GridCell>)>,
+            mut grid_cell_query: Query<(Entity, &Motor, &mut Sprite), (Without<MotorButton>, With<crate::tools::tile_map_grid::components::GridCell>)>,
     time: Res<Time>,
 ) {
     // Update motor buttons with full color animation (same as grid cells)
@@ -80,7 +80,7 @@ pub fn motors_update(
 }
 
 
-fn click_on_motor() -> impl Fn(Trigger<Pointer<Click>>, Commands, Query<&MotorButton>, Query<(Entity, Option<&Motor>), (With<crate::plugins::tile_map_grid::components::SelectedCell>, With<crate::plugins::tile_map_grid::components::GridCell>, With<Sprite>)>) {
+fn click_on_motor() -> impl Fn(Trigger<Pointer<Click>>, Commands, Query<&MotorButton>, Query<(Entity, Option<&Motor>), (With<crate::tools::tile_map_grid::components::SelectedCell>, With<crate::tools::tile_map_grid::components::GridCell>, With<Sprite>)>) {
     move |ev, mut commands, motor_buttons, selected_grid_cells| {
         let clicked_entity = ev.target();
         log::info!("Motor button clicked: {:?}", clicked_entity);

@@ -2,7 +2,7 @@ mod events;
 mod observers;
 
 use bevy::prelude::*;
-use crate::{GameState, spaces::flexer::{events::BackButtonPressed, observers::back_button_pressed_observer}, plugins::FlexGridPlugin, ui::components::spawn_back_button, systems::loading::FontAssets};
+use crate::{GameState, spaces::flexer::{events::BackButtonPressed, observers::back_button_pressed_observer}, tools::FlexGridPlugin, ui::components::spawn_back_button, systems::loading::FontAssets};
 
 #[derive(Component)]
 struct FlexerSpaceEntity;
