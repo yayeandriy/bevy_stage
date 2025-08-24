@@ -25,6 +25,10 @@ impl Plugin for GridAndMotorsSpacePlugin {
                 startup
             )
             .add_systems(
+                Update,
+                update_back_button_position.run_if(in_state(GameState::GridAndMotors))
+            )
+            .add_systems(
                 OnExit(GameState::GridAndMotors),
                 cleanup_grid_and_motors_space
             )
@@ -75,5 +79,25 @@ fn cleanup_grid_and_motors_space(
 ) {
     for entity in entities.iter() {
         commands.entity(entity).despawn();
+    }
+}
+
+fn update_back_button_position(
+    mut back_button_query: Query<&mut Transform, With<BackButton>>,
+    windows: Query<&Window, Changed<Window>>,
+) {
+    if let Ok(window) = windows.single() {
+        let window_size = Vec2::new(window.width(), window.height());
+        let button_size = 40.0;
+        let margin = 20.0;
+        
+        // Calculate new position in top-left corner
+        let button_x = -window_size.x / 2.0 + margin + button_size / 2.0;
+        let button_y = window_size.y / 2.0 - margin - button_size / 2.0;
+        
+        for mut transform in back_button_query.iter_mut() {
+            transform.translation.x = button_x;
+            transform.translation.y = button_y;
+        }
     }
 }

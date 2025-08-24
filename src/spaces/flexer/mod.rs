@@ -22,6 +22,10 @@ impl Plugin for FlexerSpacePlugin {
                 startup
             )
             .add_systems(
+                Update,
+                update_back_button_position.run_if(in_state(GameState::Flexer))
+            )
+            .add_systems(
                 OnExit(GameState::Flexer),
                 cleanup_flexer_space
             )
@@ -36,15 +40,14 @@ fn setup_flexer_space(mut commands: Commands, windows: Query<&Window>) {
     if let Ok(window) = windows.single() {
         let window_size = Vec2::new(window.width(), window.height());
         
-        // Back button - white triangle pointing left, positioned in top-left corner
-        let button_size = 40.0; // Size of the triangle
-        let margin = 20.0; // Margin from screen edges
+        // Back button - white square positioned in top-left corner
+        let button_size = 40.0;
+        let margin = 20.0;
         
         // Calculate position in top-left corner
         let button_x = -window_size.x / 2.0 + margin + button_size / 2.0;
         let button_y = window_size.y / 2.0 - margin - button_size / 2.0;
         
-        // Create a simple white square as back button
         commands.spawn((
             Sprite::from_color(Color::WHITE, Vec2::new(button_size, button_size)),
             Transform::from_xyz(button_x, button_y, 1.0),
@@ -53,6 +56,26 @@ fn setup_flexer_space(mut commands: Commands, windows: Query<&Window>) {
             FlexerSpaceEntity,
         ))
         .observe(back_button_click_handler());
+    }
+}
+
+fn update_back_button_position(
+    mut back_button_query: Query<&mut Transform, With<BackButton>>,
+    windows: Query<&Window, Changed<Window>>,
+) {
+    if let Ok(window) = windows.single() {
+        let window_size = Vec2::new(window.width(), window.height());
+        let button_size = 40.0;
+        let margin = 20.0;
+        
+        // Calculate new position in top-left corner
+        let button_x = -window_size.x / 2.0 + margin + button_size / 2.0;
+        let button_y = window_size.y / 2.0 - margin - button_size / 2.0;
+        
+        for mut transform in back_button_query.iter_mut() {
+            transform.translation.x = button_x;
+            transform.translation.y = button_y;
+        }
     }
 }
 
