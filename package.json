@@ -1,5 +1,5 @@
 {
-  "name": "bevy_stage",
+  "name": "spector_id",
   "version": "1.0.0",
   "description": "Template for a Game using the awesome [Bevy engine][bevy] featuring out of the box builds for Windows, Linux, macOS, Web (Wasm), Android, and iOS.",
   "main": "index.js",

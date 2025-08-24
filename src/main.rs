@@ -6,7 +6,7 @@ use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy::winit::WinitWindows;
 use bevy::DefaultPlugins;
-use bevy_stage::GamePlugin; // ToDo: Replace bevy_stage with your new crate name.
+use spector_id::GamePlugin; // ToDo: Replace spector_id with your new crate name.
 use std::io::Cursor;
 use winit::window::Icon;
 

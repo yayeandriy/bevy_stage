@@ -1087,22 +1087,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy_stage"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy_asset_loader",
- "bevy_ecs_tilemap",
- "bevy_picking",
- "embed-resource",
- "image",
- "log",
- "rand",
- "webbrowser",
- "winit",
-]
-
-[[package]]
 name = "bevy_state"
 version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2836,8 +2820,8 @@ name = "mobile"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "bevy_stage",
  "objc2-avf-audio",
+ "spector_id",
 ]
 
 [[package]]
@@ -3893,6 +3877,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd538fb6910ac1099850255cf94a94df6551fbdd602454387d0adb2d1ca6dead"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "spector_id"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy_asset_loader",
+ "bevy_ecs_tilemap",
+ "bevy_picking",
+ "embed-resource",
+ "image",
+ "log",
+ "rand",
+ "webbrowser",
+ "winit",
 ]
 
 [[package]]

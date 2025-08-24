@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::window::WindowMode;
 use bevy::winit::WinitSettings;
-use bevy_stage::GamePlugin; // ToDo: Replace bevy_stage with your new crate name.
+use spector_id::GamePlugin; // ToDo: Replace spector_id with your new crate name.
 
 #[unsafe(no_mangle)]
 unsafe extern "C" fn main_rs() {

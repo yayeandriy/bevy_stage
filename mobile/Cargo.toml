@@ -9,8 +9,10 @@ name = "mobile"
 crate-type = ["staticlib", "cdylib"]
 
 [dependencies]
-bevy_stage = { path = ".." } # ToDo
-bevy = { version = "0.16.0", default-features = false, features = ["android-native-activity"] }
+spector_id = { path = ".." } # ToDo
+bevy = { version = "0.16.0", default-features = false, features = [
+    "android-native-activity",
+] }
 
 [target."cfg(target_os = \"ios\")".dependencies]
 objc2-avf-audio = { version = "0.3.0", features = [
@@ -19,8 +21,8 @@ objc2-avf-audio = { version = "0.3.0", features = [
 ] }
 
 [package.metadata.android]
-package = "me.nikl.bevygame"  # ToDo
-apk_name = "BevyGame"  # ToDo same as GAME_OSX_APP_NAME in release workflow
+package = "me.nikl.bevygame"              # ToDo
+apk_name = "BevyGame"                     # ToDo same as GAME_OSX_APP_NAME in release workflow
 assets = "../assets"
 strip = "strip"
 resources = "../build/android/res"
@@ -31,7 +33,7 @@ target_sdk_version = 35
 
 [package.metadata.android.application]
 icon = "@mipmap/icon"
-label = "Bevy Game" # ToDo
+label = "Bevy Game"   # ToDo
 
 # Workaround for tracing-oslog iOS simulator build issue - replace with a dummy crate
 # This only affects simulator builds; device builds will use the real tracing-oslog

@@ -18,13 +18,13 @@
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=bevy_stage",
-                    "--package=bevy_stage",
+                    "--bin=spector_id",
+                    "--package=spector_id",
                     "--features",
                     "dev"
                 ],
                 "filter": {
-                    "name": "bevy_stage",
+                    "name": "spector_id",
                     "kind": "bin"
                 },
             },
@@ -49,13 +49,13 @@
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=bevy_stage",
-                    "--package=bevy_stage",
+                    "--bin=spector_id",
+                    "--package=spector_id",
                     "--features",
                     "dev"
                 ],
                 "filter": {
-                    "name": "bevy_stage",
+                    "name": "spector_id",
                     "kind": "bin"
                 }
             },
