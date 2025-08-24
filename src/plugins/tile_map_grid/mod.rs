@@ -13,9 +13,6 @@ const GAP_SIZE: f32 = 0.0;
 const N: usize = 20;
 
 #[derive(Component)]
-struct BackButton;
-
-#[derive(Component)]
 struct TileMapGridEntity;
 
 pub struct TileMapGridPlugin;
@@ -28,10 +25,6 @@ impl Plugin for TileMapGridPlugin {
                 startup
             )
             .add_systems(
-                Update,
-                handle_back_button.run_if(in_state(GameState::GridAndMotors))
-            )
-            .add_systems(
                 OnExit(GameState::GridAndMotors),
                 cleanup_tile_map_grid
             )            
@@ -42,43 +35,15 @@ impl Plugin for TileMapGridPlugin {
 
 
 
-fn startup(
-    mut commands: Commands,   
-    windows: Query<&Window>,
-) {
-    // Spawn camera for TileMapGrid
-    commands.spawn((Camera2d, Msaa::Off, TileMapGridEntity));
+fn startup(mut commands: Commands) {
+    info!("Starting TileMapGrid");
     
-    if let Ok(window) = windows.single() {
-        let window_size = Vec2::new(window.width(), window.height());
-        
-        // Add background
-        commands.spawn((
-            Sprite::from_color(Color::linear_rgb(0.1, 0.2, 0.3), Vec2::new(window_size.x, window_size.y)),
-            Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)),
-            TileMapGridEntity,
-        ));
-        
-        // Add back button
-        commands.spawn((
-            Sprite::from_color(Color::linear_rgb(0.2, 0.2, 0.2), Vec2::new(120.0, 40.0)),
-            Transform::from_translation(Vec3::new(-window_size.x / 2.0 + 80.0, window_size.y / 2.0 - 30.0, 1.0)),
-            BackButton,
-            TileMapGridEntity,
-        ));
-        
-        // Add back button text
-        commands.spawn((
-            Text2d::new("← Back"),
-            Transform::from_translation(Vec3::new(-window_size.x / 2.0 + 80.0, window_size.y / 2.0 - 30.0, 2.0)),
-            TextFont {
-                font_size: 18.0,
-                ..default()
-            },
-            TextColor(Color::WHITE),
-            TileMapGridEntity,
-        ));
-    }
+    // Add background
+    commands.spawn((
+        Sprite::from_color(Color::linear_rgb(0.1, 0.2, 0.3), Vec2::new(800.0, 600.0)),
+        Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)),
+        TileMapGridEntity,
+    ));
    
     let grid = Vec2::new(N as f32, N as f32); // 2x2 grid
     let grid_vec = Vec2::new(
@@ -95,7 +60,6 @@ fn startup(
             let pos = pos * grid_vec;
             spawn_cell(&mut commands, pos, sprite_size, i, j);
         }));
-    
 }
 
 fn spawn_cell(
@@ -211,34 +175,6 @@ fn resize_on_drag() -> impl Fn(Trigger<Pointer<Drag>>, Query<(&mut Transform, &G
             col: grid_cell.col,
         });
      
-    }
-}
-
-fn handle_back_button(
-    mut next_state: ResMut<NextState<GameState>>,
-    mouse_button_input: Res<ButtonInput<MouseButton>>,
-    camera_q: Query<(&Camera, &GlobalTransform)>,
-    windows: Query<&Window>,
-    back_button_q: Query<&Transform, With<BackButton>>,
-) {
-    if mouse_button_input.just_pressed(MouseButton::Left) {
-        let Ok(window) = windows.single() else { return; };
-        let Ok((camera, camera_transform)) = camera_q.single() else { return; };
-        
-        if let Some(cursor_pos) = window.cursor_position() {
-            if let Ok(world_pos) = camera.viewport_to_world_2d(camera_transform, cursor_pos) {
-                for button_transform in back_button_q.iter() {
-                    let button_pos = button_transform.translation.truncate();
-                    let button_size = Vec2::new(120.0, 40.0);
-                    let button_rect = Rect::from_center_size(button_pos, button_size);
-                    
-                    if button_rect.contains(world_pos) {
-                        next_state.set(GameState::Startup);
-                        return;
-                    }
-                }
-            }
-        }
     }
 }
 
