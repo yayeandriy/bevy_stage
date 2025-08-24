@@ -1,5 +1,8 @@
+mod events;
+mod observers;
+
 use bevy::prelude::*;
-use crate::GameState;
+use crate::{GameState, plugins::flex_grid::{events::BackButtonPressed, observers::back_button_pressed_observer}};
 
 #[derive(Component)]
 struct BackButton;
@@ -12,18 +15,20 @@ pub struct FlexGridPlugin;
 impl Plugin for FlexGridPlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_event::<BackButtonPressed>()
             .add_systems(
                 OnEnter(GameState::Flexer), 
                 startup
             )
             .add_systems(
                 Update,
-                handle_back_button.run_if(in_state(GameState::Flexer))
+                handle_back_button_click.run_if(in_state(GameState::Flexer))
             )
             .add_systems(
                 OnExit(GameState::Flexer),
                 cleanup_flex_grid
-            );
+            )
+            .add_observer(back_button_pressed_observer);
     }
 }
 
@@ -43,7 +48,7 @@ fn setup_flex_grid(mut commands: Commands) {
         FlexGridEntity,
     ));
 
-    // Back button
+    // Back button - positioned at top-left corner of screen
     commands.spawn((
         Button,
         Node {
@@ -77,25 +82,25 @@ fn startup(commands: Commands) {
     setup_flex_grid(commands);
 }
 
-fn handle_back_button(
-    mut interaction_query: Query<&Interaction, (Changed<Interaction>, With<BackButton>)>,
-    mut next_state: ResMut<NextState<GameState>>,
-) {
-    for interaction in &mut interaction_query {
-        match *interaction {
-            Interaction::Pressed => {
-                next_state.set(GameState::Startup);
-            }
-            _ => {}
-        }
-    }
-}
-
 fn cleanup_flex_grid(
     mut commands: Commands,
     entities: Query<Entity, With<FlexGridEntity>>,
 ) {
     for entity in entities.iter() {
         commands.entity(entity).despawn();
+    }
+}
+
+fn handle_back_button_click(
+    mut interaction_query: Query<&Interaction, (Changed<Interaction>, With<BackButton>)>,
+    mut commands: Commands,
+) {
+    for interaction in &mut interaction_query {
+        match *interaction {
+            Interaction::Pressed => {
+                commands.trigger(BackButtonPressed);
+            }
+            _ => {}
+        }
     }
 }
