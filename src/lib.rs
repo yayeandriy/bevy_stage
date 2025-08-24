@@ -6,7 +6,7 @@ mod spaces;
 mod systems;
 
 use crate::spaces::{GridSpacePlugin, GridAndMotorsSpacePlugin, FlexerSpacePlugin};
-use crate::ui::{StartupMenuPlugin}; // DrawingMenuPlugin removed due to camera conflicts
+use crate::ui::{StartupMenuPlugin, UiAssetsPlugin}; // DrawingMenuPlugin removed due to camera conflicts
 use crate::systems::LoadingPlugin;
 
 use bevy::app::App;
@@ -34,6 +34,7 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<GameState>().add_plugins((
             LoadingPlugin,
+            UiAssetsPlugin,
             StartupMenuPlugin,
             // DrawingMenuPlugin, // Disabled - causes camera conflicts with Motors state
             TilemapPlugin,

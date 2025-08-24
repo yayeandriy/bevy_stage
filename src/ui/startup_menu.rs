@@ -1,6 +1,7 @@
 use crate::systems::loading::FontAssets;
 use crate::ui::font_utils::*;
 use crate::ui::settings::SpaceSettings;
+
 use crate::GameState;
 use bevy::prelude::*;
 
@@ -58,12 +59,15 @@ fn setup_menu(mut commands: Commands, fonts: Res<FontAssets>, space_settings: Re
         .with_children(|children| {
             // Title - "Spector ID"
             children.spawn((
-                text_geist_bold_with_font("Spector ID", 48.0, Color::BLACK, &fonts),
+                text_geist_regular_with_font("Spector ID", 48.0, Color::BLACK, &fonts),
                 Node {
                     margin: UiRect::bottom(Val::Px(60.0)), // Increased margin for better spacing
                     ..default()
                 },
             ));
+
+            // Back button
+
 
             // Horizontal row of cards
             children
@@ -84,13 +88,15 @@ fn setup_menu(mut commands: Commands, fonts: Res<FontAssets>, space_settings: Re
                                 flex_direction: FlexDirection::Column,
                                 align_items: AlignItems::FlexStart, // Left align text
                                 justify_content: JustifyContent::SpaceBetween, // Space between title and description
-                                padding: UiRect::all(Val::Px(24.0)),
-                                width: Val::Px(200.0),
-                                height: Val::Px(140.0),
+                                padding: UiRect::all(Val::Px(20.0)),
+                                width: Val::Px(400.0),
+                                height: Val::Px(180.0),
+                                
                                 ..default()
                             },
                             BackgroundColor(Color::WHITE),
                             BorderColor(Color::linear_rgb(0.9, 0.9, 0.9)),
+                            BorderRadius::all(Val::Px(10.0)),
                             ButtonColors {
                                 normal: Color::WHITE,
                                 hovered: Color::linear_rgb(0.98, 0.98, 0.98),
@@ -100,13 +106,13 @@ fn setup_menu(mut commands: Commands, fonts: Res<FontAssets>, space_settings: Re
                         .with_children(|card| {
                             // Card title
                             card.spawn((
-                                text_geist_bold_with_font(space_config.name, 24.0, Color::BLACK, &fonts),
+                                text_geist_regular_with_font(space_config.name, 24.0, Color::BLACK, &fonts),
                                 Node { margin: UiRect::bottom(Val::Px(8.0)), ..default() },
                             ));
                             
                             // Card description - positioned at bottom right
                             card.spawn((
-                                text_geist_regular_with_font(space_config.description, 16.0, Color::linear_rgb(0.4, 0.6, 0.9), &fonts),
+                                text_geist_regular_with_font(space_config.description, 16.0, Color::linear_rgb(0.3, 0.5, 1.0), &fonts),
                                 Node { 
                                     margin: UiRect::top(Val::Auto),
                                     ..default()
